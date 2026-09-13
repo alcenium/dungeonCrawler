@@ -46,9 +46,7 @@ class DungeonCrawler:
                        )
 
         self.player = Player(TileCoord(4, 4), "bandit")
-
         self.camera = Camera(self.virtual_width, self.virtual_height)
-        self.move_speed = 80 # pixels per frame
 
         self.dt = 0
         self.fps = 60
@@ -91,15 +89,7 @@ class DungeonCrawler:
     def draw(self):
         self.virtual_screen.fill((25,25,25))
 
-        for y in range(self.map.height):
-            for x in range(self.map.width):
-                tile_type = self.map.get_tile(x, y)
-
-                tileset = self.tilesets[tile_type.tileset_name]
-                tile_name = tile_type.name
-
-                self.render(tileset, tile_name, self.tilemap.to_world_coord(TileCoord(x, y)))
-
+        self.render_map()
         self.render(self.tilesets["rogues"],
                     self.player.character_type,
                     self.tilemap.to_world_coord(self.player.coordinate))
@@ -112,5 +102,15 @@ class DungeonCrawler:
         area = tileset.get_area(tile_name)
 
         self.virtual_screen.blit(tileset.image, dest, area)
+
+    def render_map(self):
+        for y in range(self.map.height):
+            for x in range(self.map.width):
+                tile_type = self.map.get_tile(x, y)
+
+                tileset = self.tilesets[tile_type.tileset_name]
+                tile_name = tile_type.name
+
+                self.render(tileset, tile_name, self.tilemap.to_world_coord(TileCoord(x, y)))
 
 DungeonCrawler().run()
