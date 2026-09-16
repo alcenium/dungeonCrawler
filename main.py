@@ -1,17 +1,16 @@
 import pygame
-from camera import Camera
-from player import Player
-from tileSet import TileSet
-from tilemap import Tilemap
-from tile import Tile
-from tile import TileCoord
-from map import Map
+from modules.atlas import Atlas
+from modules.camera import Camera
+from modules.player import Player
+from modules.world import World
+from modules.world import TileType
+from modules.world import GridCoordinate
 
 class DungeonCrawler:
     def __init__(self):
         pygame.init()
         self.width,         self.height         = 1280, 720
-        self.virtual_width, self.virtual_height = 320,  180
+        self.virtual_width, self.virtual_height = 640,  360
 
         self.scale = (self.width  // self.virtual_width,
                       self.height // self.virtual_height)
@@ -22,30 +21,31 @@ class DungeonCrawler:
         self.screen         = pygame.display.set_mode((self.width, self.height))
         self.virtual_screen = pygame.Surface((self.virtual_width, self.virtual_height))
 
-        self.tile_size = 32
-        self.tilemap = Tilemap(self.tile_size)
-        self.tilesets = {
-                "animals": TileSet("32rogues/animals.png", "32rogues/animals.txt", self.tile_size),
-                "items": TileSet("32rogues/items.png", "32rogues/items.txt", self.tile_size),
-                "tiles": TileSet("32rogues/tiles.png", "32rogues/tiles.txt", self.tile_size),
-                "rogues": TileSet("32rogues/rogues.png", "32rogues/rogues.txt", self.tile_size),
-                "monsters": TileSet("32rogues/monsters.png", "32rogues/monsters.txt", self.tile_size)
+        self.atlases = {
+                "animals":  Atlas("32rogues/animals.png",  "32rogues/animals.txt",  32),
+                "items":    Atlas("32rogues/items.png",    "32rogues/items.txt",    32),
+                "tiles":    Atlas("32rogues/tiles.png",    "32rogues/tiles.txt",    32),
+                "rogues":   Atlas("32rogues/rogues.png",   "32rogues/rogues.txt",   32),
+                "monsters": Atlas("32rogues/monsters.png", "32rogues/monsters.txt", 32)
                 }
-        self.map = Map((0, 1, 1, 1, 1, 1, 1, 1, 0,
-                        0, 2, 2, 2, 2, 2, 2, 2, 0,
-                        0, 2, 2, 2, 2, 2, 2, 2, 0,
-                        0, 2, 2, 2, 2, 2, 2, 2, 0,
-                        0, 2, 2, 2, 2, 2, 2, 2, 0,
-                        1, 1, 1, 1, 3, 1, 1, 1, 1),
-                        width = 9,
-                        height= 6,
-                        types = (Tile("tiles", "dirt wall (top)", False),
-                                 Tile("tiles", "dirt wall (side)", False),
-                                 Tile("tiles", "blank floor (dark grey)", True),
-                                 Tile("tiles", "door 1", True))
-                       )
+        self.world = World((0, 1, 1, 1, 1, 1, 1, 1, 0,
+                            0, 2, 2, 2, 2, 2, 2, 2, 0,
+                            0, 2, 2, 2, 2, 2, 2, 2, 0,
+                            0, 2, 2, 2, 2, 2, 2, 2, 0,
+                            0, 2, 2, 2, 2, 2, 2, 2, 0,
+                            1, 1, 1, 1, 3, 1, 1, 1, 1),
+                            map_width = 9,
+                            map_height= 6,
 
-        self.player = Player(TileCoord(4, 4), "bandit")
+                            tile_size = 32,
+                            tile_types = (TileType("dirt wall (top)", False),
+                                          TileType("dirt wall (side)", False),
+                                          TileType("blank floor (dark grey)", True),
+                                          TileType("door 1", True)
+                                         )
+                          )
+
+        self.player = Player(GridCoordinate(4, 4), "bandit")
         self.camera = Camera(self.virtual_width, self.virtual_height)
 
         self.dt = 0
@@ -84,33 +84,38 @@ class DungeonCrawler:
 
     def update(self):
         self.camera.focus_on(
-                self.tilemap.to_world_coord(self.player.coordinate))
+                self.world.grid_to_world(self.player.coordinate))
 
     def draw(self):
         self.virtual_screen.fill((25,25,25))
 
-        self.render_map()
-        self.render(self.tilesets["rogues"],
+        self.render_world()
+        self.render(self.atlases["rogues"],
                     self.player.character_type,
-                    self.tilemap.to_world_coord(self.player.coordinate))
+                    self.world.grid_to_world(self.player.coordinate))
 
         pygame.transform.scale_by(self.virtual_screen, self.scale, self.screen)
         pygame.display.flip()
 
-    def render(self, tileset, tile_name, world_coord):
-        dest = self.camera.world_to_screen(world_coord)
-        area = tileset.get_area(tile_name)
+    def render(self, atlas, tile_name, world_position):
+        """
+        Convert from world coordinate to camera relative coordinate
+        Blit the tile to the virtual screen
+        """
+        dest = self.camera.world_to_screen(world_position)
+        atlas.blit(self.virtual_screen, tile_name, dest)
 
-        self.virtual_screen.blit(tileset.image, dest, area)
+    def render_world(self):
+        """
+        Blit every tiles in the map
+        """
+        for y in range(self.world.map_height):
+            for x in range(self.world.map_width):
+                tile_type = self.world.get_tile(x, y)
 
-    def render_map(self):
-        for y in range(self.map.height):
-            for x in range(self.map.width):
-                tile_type = self.map.get_tile(x, y)
-
-                tileset = self.tilesets[tile_type.tileset_name]
+                atlas = self.atlases["tiles"]
                 tile_name = tile_type.name
 
-                self.render(tileset, tile_name, self.tilemap.to_world_coord(TileCoord(x, y)))
+                self.render(atlas, tile_name, self.world.grid_to_world(GridCoordinate(x, y)))
 
 DungeonCrawler().run()

@@ -1,15 +1,15 @@
 import pygame
 from pygame import Surface
 
-class TileSet:
-    def __init__(self, tileset_file: str, tile_index_file: str, tile_size: int):
+class Atlas:
+    def __init__(self, atlas_file: str, atlas_index_file: str, tile_size: int):
         self.tile_size = tile_size
-        self.tile_index_file = tile_index_file
+        self.atlas_index_file = atlas_index_file
 
         self.indexes = {}
         self.extract_indexes()
 
-        self.image = pygame.image.load(tileset_file).convert()
+        self.image = pygame.image.load(atlas_file).convert()
 
     def get_area(self, item_name:str) -> tuple:
         """
@@ -20,11 +20,18 @@ class TileSet:
         return (tile_pos[1] * self.tile_size, tile_pos[0] * self.tile_size, self.tile_size, self.tile_size)
 
     def debug(self):
+        """
+        Print out all tiles's name inside the atlas
+        """
         for key, value in self.indexes.items():
             print(f"{key}: {value}")
 
     def extract_indexes(self):
-        with open(self.tile_index_file) as file:
+        """
+        Open the index file
+        Stores all the names and individual coordinate in a dictionary
+        """
+        with open(self.atlas_index_file) as file:
             column = 0
             row = 0
 
@@ -37,3 +44,6 @@ class TileSet:
                 else:
                     column = 0
                     row += 1
+
+    def blit(self, surface: Surface, name: str, coordinate: tuple) -> None:
+        surface.blit(self.image, coordinate, self.get_area(name))
