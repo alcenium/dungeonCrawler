@@ -6,3 +6,6 @@ class Player:
     def move(self, x, y):
         self.coordinate.x += x
         self.coordinate.y += y
+
+    def get_coord(self):
+        return self.coordinate
