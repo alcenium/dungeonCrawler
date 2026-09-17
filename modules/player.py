@@ -3,9 +3,9 @@ class Player:
         self.coordinate = tile_coord
         self.character_type = character_type
 
-    def move(self, x, y):
-        self.coordinate.x += x
-        self.coordinate.y += y
+    def move(self, grid_coord):
+        self.coordinate.x += grid_coord.x
+        self.coordinate.y += grid_coord.y
 
     def get_coord(self):
         return self.coordinate

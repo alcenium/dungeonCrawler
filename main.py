@@ -69,13 +69,13 @@ class DungeonCrawler:
                 case pygame.KEYDOWN:
                     match event.key:
                         case pygame.K_w:
-                            self.player.move(0, -1)
+                            self.try_moving(0, -1)
                         case pygame.K_s:
-                            self.player.move(0, 1)
+                            self.try_moving(0, 1)
                         case pygame.K_a:
-                            self.player.move(-1, 0)
+                            self.try_moving(-1, 0)
                         case pygame.K_d:
-                            self.player.move(1, 0)
+                            self.try_moving(1, 0)
 
     def processKey(self):
         keys = pygame.key.get_pressed()
@@ -109,13 +109,18 @@ class DungeonCrawler:
         """
         Blit every tiles in the map
         """
-        for y in range(self.world.map_height):
-            for x in range(self.world.map_width):
-                tile_type = self.world.get_tile(x, y)
+        for grid_coord in self.world:
+            tile_type = self.world.get_tile(grid_coord)
 
-                atlas = self.atlases["tiles"]
-                tile_name = tile_type.name
+            atlas = self.atlases["tiles"]
+            tile_name = tile_type.name
 
-                self.render(atlas, tile_name, self.world.grid_to_world(GridCoordinate(x, y)))
+            self.render(atlas, tile_name, self.world.grid_to_world(grid_coord))
+
+    def try_moving(self, x, y):
+        grid_coord = GridCoordinate(x, y)
+        neighbor_tile = self.player.get_coord() + grid_coord
+        if (self.world.get_tile(neighbor_tile).walkable):
+            self.player.move(grid_coord)
 
 DungeonCrawler().run()
