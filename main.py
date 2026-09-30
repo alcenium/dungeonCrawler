@@ -38,14 +38,16 @@ class DungeonCrawler:
                             map_height= 6,
 
                             tile_size = 32,
-                            tile_types = (TileType("dirt wall (top)", False),
-                                          TileType("dirt wall (side)", False),
-                                          TileType("blank floor (dark grey)", True),
-                                          TileType("door 1", True)
+                            tile_types = (TileType(self.atlases["tiles"].get("dirt wall (top)"),         False),
+                                          TileType(self.atlases["tiles"].get("dirt wall (side)"),        False),
+                                          TileType(self.atlases["tiles"].get("blank floor (dark grey)"), True),
+                                          TileType(self.atlases["tiles"].get("door 1"),                  True)
                                          )
                           )
 
-        self.player = Player(GridCoordinate(4, 4), "bandit")
+        self.player = Player(GridCoordinate(4, 4),
+                             "bandit",
+                             self.atlases["rogues"].get("bandit"))
         self.camera = Camera(self.virtual_width, self.virtual_height)
 
         self.dt = 0
@@ -55,13 +57,13 @@ class DungeonCrawler:
     def run(self):
         while self.running:
             self.dt = self.clock.tick(60) / 1000
-            self.processEvent()
-            self.processKey()
+            self.process_event()
+            self.process_key()
             self.update()
             self.draw()
         pygame.quit()
 
-    def processEvent(self):
+    def process_event(self):
         for event in pygame.event.get():
             match event.type:
                 case pygame.QUIT:
@@ -77,7 +79,7 @@ class DungeonCrawler:
                         case pygame.K_d:
                             self.try_moving(1, 0)
 
-    def processKey(self):
+    def process_key(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_q]:
             self.running = False
@@ -90,32 +92,27 @@ class DungeonCrawler:
         self.virtual_screen.fill((25,25,25))
 
         self.render_world()
-        self.render(self.atlases["rogues"],
-                    self.player.character_type,
+        self.render(self.player.character_surface,
                     self.world.grid_to_world(self.player.coordinate))
 
         pygame.transform.scale_by(self.virtual_screen, self.scale, self.screen)
         pygame.display.flip()
 
-    def render(self, atlas, tile_name, world_position):
+    def render(self, surface, world_position):
         """
         Convert from world coordinate to camera relative coordinate
         Blit the tile to the virtual screen
         """
-        dest = self.camera.world_to_screen(world_position)
-        atlas.blit(self.virtual_screen, tile_name, dest)
+        screen_position = self.camera.world_to_screen(world_position)
+        self.virtual_screen.blit(surface, screen_position)
 
     def render_world(self):
         """
         Blit every tiles in the map
         """
         for grid_coord in self.world:
-            tile_type = self.world.get_tile(grid_coord)
-
-            atlas = self.atlases["tiles"]
-            tile_name = tile_type.name
-
-            self.render(atlas, tile_name, self.world.grid_to_world(grid_coord))
+            tile = self.world.get_tile(grid_coord)
+            self.render(tile.surface, self.world.grid_to_world(grid_coord))
 
     def try_moving(self, x, y):
         grid_coord = GridCoordinate(x, y)

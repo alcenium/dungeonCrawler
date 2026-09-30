@@ -11,13 +11,15 @@ class Atlas:
 
         self.image = pygame.image.load(atlas_file).convert()
 
-    def get_area(self, item_name:str) -> tuple:
+    def get(self, item_name:str) -> Surface:
         """
-        Returns a tuple containing (x, y, width, height) of the tile
-        inside the tileset
+        Return the subsurface containing the required tile
         """
         tile_pos = self.indexes[item_name]
-        return (tile_pos[1] * self.tile_size, tile_pos[0] * self.tile_size, self.tile_size, self.tile_size)
+        return self.image.subsurface(tile_pos[1] * self.tile_size,
+                                     tile_pos[0] * self.tile_size,
+                                     self.tile_size,
+                                     self.tile_size)
 
     def debug(self):
         """
@@ -44,6 +46,3 @@ class Atlas:
                 else:
                     column = 0
                     row += 1
-
-    def blit(self, surface: Surface, name: str, coordinate: tuple) -> None:
-        surface.blit(self.image, coordinate, self.get_area(name))

@@ -36,9 +36,9 @@ class World:
         return WorldIterator(self.map_grid, self.map_width, self.map_height)
 
 class TileType:
-    def __init__(self, name, walkable=False):
-        self.name         = name
-        self.walkable     = walkable
+    def __init__(self, surface, walkable=False):
+        self.surface  = surface
+        self.walkable = walkable
 
 class GridCoordinate:
     def __init__(self, x=0, y=0):
