@@ -1,5 +1,5 @@
 import random
-from binary_space_partitioning.map import Map
+from modules.binary_space_partitioning.map import Map
 
 def generate_map(seed=None, grid_size=16, width=70, height=50, room_count=10):
     randomizer = random.Random(seed)

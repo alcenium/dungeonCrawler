@@ -1,39 +1,41 @@
 from math import floor
 
+from modules.player import Player
+from modules.registry import Characters, Tiles
+
 class World:
-    def __init__(self, map_grid, map_width=0, map_height=0, tile_size=0, tile_types=()):
+    def __init__(self, map_grid, tile_size=0, tile_types=(), character_type=Characters.BANDIT):
         self.map_grid = map_grid
-        self.map_width  = map_width
-        self.map_height = map_height
 
         self.tile_size = tile_size
         self.tile_types = tile_types
 
-    def get_tile(self, tile_coord):
+        self.player = Player(GridCoordinate(2, 2), character_type)
+
+    def get_tile(self, grid_coord):
         try:
-            return self.tile_types[self.get_type(tile_coord)]
+            return self.tile_types.get(self.get_type(grid_coord))
         except IndexError:
             return TileType("", True)
 
-    def get_type(self, tile_coord):
-        return self.map_grid[self.get_pos(tile_coord)]
-    
-    def get_pos(self, tile_coord):
-        if (  tile_coord.x < 0 or tile_coord.x >= self.map_width
-           or tile_coord.y < 0 or tile_coord.y >= self.map_height):
-            raise IndexError("Coordinate provided is outside of the world's range")
+    def get_type(self, grid_coord):
+        return self.map_grid.get(grid_coord.x, grid_coord.y)
 
-        return tile_coord.y * self.map_width + tile_coord.x
-
-    def grid_to_world(self, tile_coord: object):
-        return (tile_coord.x * self.tile_size, tile_coord.y * self.tile_size)
+    def grid_to_world(self, grid_coord: object):
+        return (grid_coord.x * self.tile_size, grid_coord.y * self.tile_size)
 
     def world_to_grid(self, world_coord: tuple):
         return (floor(world_coord[0] / self.tile_size),
                 floor(world_coord[1] / self.tile_size))
 
+    def move_player(self, x, y):
+        grid_coord = GridCoordinate(x, y)
+        neighbor_tile = self.player.get_coord() + grid_coord
+        if (self.get_tile(neighbor_tile).walkable):
+            self.player.move(grid_coord)
+
     def __iter__(self):
-        return WorldIterator(self.map_grid, self.map_width, self.map_height)
+        return WorldIterator(self.map_grid, self.map_grid.width, self.map_grid.height)
 
 class TileType:
     def __init__(self, surface, walkable=False):

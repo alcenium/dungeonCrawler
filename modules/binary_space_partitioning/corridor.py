@@ -1,4 +1,5 @@
 import pygame
+from modules.registry import Tiles
 
 class Corridor:
     def __init__(self, x1, y1, x2, y2):
@@ -24,4 +25,4 @@ class Corridor:
 
         for x in range(x_start, x_end):
             for y in range(y_start, y_end):
-                map_grid.set(x, y, 2)
+                map_grid.set(x, y, Tiles.CORRIDOR)

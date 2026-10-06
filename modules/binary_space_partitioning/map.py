@@ -1,6 +1,6 @@
-from binary_space_partitioning.cell import Cell
-from binary_space_partitioning.corridor import Corridor
-from binary_space_partitioning.map_grid import MapGrid
+from modules.binary_space_partitioning.cell import Cell
+from modules.binary_space_partitioning.corridor import Corridor
+from modules.binary_space_partitioning.map_grid import MapGrid
 
 class Map:
     """

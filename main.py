@@ -2,9 +2,14 @@ import pygame
 from modules.atlas import Atlas
 from modules.camera import Camera
 from modules.player import Player
+
 from modules.world import World
 from modules.world import TileType
 from modules.world import GridCoordinate
+
+from modules.binary_space_partitioning import generate_map
+
+from modules.registry import Characters, Tiles
 
 class DungeonCrawler:
     def __init__(self):
@@ -22,32 +27,23 @@ class DungeonCrawler:
         self.virtual_screen = pygame.Surface((self.virtual_width, self.virtual_height))
 
         self.atlases = {
-                "animals":  Atlas("32rogues/animals.png",  "32rogues/animals.txt",  32),
-                "items":    Atlas("32rogues/items.png",    "32rogues/items.txt",    32),
                 "tiles":    Atlas("32rogues/tiles.png",    "32rogues/tiles.txt",    32),
                 "rogues":   Atlas("32rogues/rogues.png",   "32rogues/rogues.txt",   32),
-                "monsters": Atlas("32rogues/monsters.png", "32rogues/monsters.txt", 32)
                 }
-        self.world = World((0, 1, 1, 1, 1, 1, 1, 1, 0,
-                            0, 2, 2, 2, 2, 2, 2, 2, 0,
-                            0, 2, 2, 2, 2, 2, 2, 2, 0,
-                            0, 2, 2, 2, 2, 2, 2, 2, 0,
-                            0, 2, 2, 2, 2, 2, 2, 2, 0,
-                            1, 1, 1, 1, 3, 1, 1, 1, 1),
-                            map_width = 9,
-                            map_height= 6,
 
-                            tile_size = 32,
-                            tile_types = (TileType(self.atlases["tiles"].get("dirt wall (top)"),         False),
-                                          TileType(self.atlases["tiles"].get("dirt wall (side)"),        False),
-                                          TileType(self.atlases["tiles"].get("blank floor (dark grey)"), True),
-                                          TileType(self.atlases["tiles"].get("door 1"),                  True)
-                                         )
+        self.character_type = Characters.BANDIT
+        self.world = World(generate_map(),
+                           tile_size = 32,
+                           tile_types = {
+                               Tiles.EMPTY:       TileType(self.atlases["tiles"].get("blank floor (dark grey)"), True),
+                               Tiles.WALL:        TileType(self.atlases["tiles"].get("dirt wall (top)"), False),
+                               Tiles.FLOOR:       TileType(self.atlases["tiles"].get("blank red floor"), True),
+                               Tiles.CORRIDOR:    TileType(self.atlases["tiles"].get("grass 1"),         True),
+                               Characters.BANDIT: TileType(self.atlases["rogues"].get("bandit"), False),
+                                        },
+                           character_type = self.character_type
                           )
 
-        self.player = Player(GridCoordinate(4, 4),
-                             "bandit",
-                             self.atlases["rogues"].get("bandit"))
         self.camera = Camera(self.virtual_width, self.virtual_height)
 
         self.dt = 0
@@ -71,13 +67,13 @@ class DungeonCrawler:
                 case pygame.KEYDOWN:
                     match event.key:
                         case pygame.K_w:
-                            self.try_moving(0, -1)
+                            self.world.move_player(0, -1)
                         case pygame.K_s:
-                            self.try_moving(0, 1)
+                            self.world.move_player(0, 1)
                         case pygame.K_a:
-                            self.try_moving(-1, 0)
+                            self.world.move_player(-1, 0)
                         case pygame.K_d:
-                            self.try_moving(1, 0)
+                            self.world.move_player(1, 0)
 
     def process_key(self):
         keys = pygame.key.get_pressed()
@@ -86,38 +82,32 @@ class DungeonCrawler:
 
     def update(self):
         self.camera.focus_on(
-                self.world.grid_to_world(self.player.coordinate))
+                self.world.grid_to_world(self.world.player.coordinate))
 
     def draw(self):
         self.virtual_screen.fill((25,25,25))
 
         self.render_world()
-        self.render(self.player.character_surface,
-                    self.world.grid_to_world(self.player.coordinate))
+        self.render(self.world.tile_types[self.character_type].surface,
+                    self.world.grid_to_world(self.world.player.coordinate))
 
         pygame.transform.scale_by(self.virtual_screen, self.scale, self.screen)
         pygame.display.flip()
 
     def render(self, surface, world_position):
         """
-        Convert from world coordinate to camera relative coordinate
-        Blit the tile to the virtual screen
+        Biến tọa độ thế giới sang tọa độ trên màn hình
+        Hiển thị mặt phẳng lên màn hình
         """
         screen_position = self.camera.world_to_screen(world_position)
         self.virtual_screen.blit(surface, screen_position)
 
     def render_world(self):
         """
-        Blit every tiles in the map
+        Hiển thị mọi tile trên thế giới
         """
         for grid_coord in self.world:
             tile = self.world.get_tile(grid_coord)
             self.render(tile.surface, self.world.grid_to_world(grid_coord))
-
-    def try_moving(self, x, y):
-        grid_coord = GridCoordinate(x, y)
-        neighbor_tile = self.player.get_coord() + grid_coord
-        if (self.world.get_tile(neighbor_tile).walkable):
-            self.player.move(grid_coord)
 
 DungeonCrawler().run()

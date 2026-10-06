@@ -1,4 +1,5 @@
 import pygame
+from modules.registry import Tiles
 
 class Cell:
     """
@@ -128,7 +129,7 @@ class Cell:
 
         for x in range(x_start, x_end):
             for y in range(y_start, y_end):
-                map_grid.set(x, y, 1)
+                map_grid.set(x, y, Tiles.FLOOR)
 
         for corridor in self.horizontal_corridors:
             corridor.to_grid(map_grid, grid_size)

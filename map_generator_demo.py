@@ -1,6 +1,6 @@
 import pygame
 import random
-from binary_space_partitioning.map import Map
+from modules.binary_space_partitioning.map import Map
 
 screen_width = 1080
 screen_height = 720
