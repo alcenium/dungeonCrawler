@@ -120,5 +120,20 @@ class Cell:
                 case 2:
                     self.horizontal_corridors.pop(0)
 
+    def to_grid(self, map_grid, grid_size):
+        x_start = int(self.x1 // grid_size)
+        x_end   = int(self.x2 // grid_size)
+        y_start = int(self.y1 // grid_size)
+        y_end   = int(self.y2 // grid_size)
+
+        for x in range(x_start, x_end):
+            for y in range(y_start, y_end):
+                map_grid.set(x, y, 1)
+
+        for corridor in self.horizontal_corridors:
+            corridor.to_grid(map_grid, grid_size)
+        for corridor in self.vertical_corridors:
+            corridor.to_grid(map_grid, grid_size)
+
     def __str__(self):
         return f'[(x1:{self.x1}, y1:{self.y1}), (x2:{self.x2}, y2:{self.y2})]'

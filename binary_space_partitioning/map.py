@@ -1,29 +1,30 @@
-from cell import Cell
-from corridor import Corridor
+from binary_space_partitioning.cell import Cell
+from binary_space_partitioning.corridor import Corridor
+from binary_space_partitioning.map_grid import MapGrid
+
 class Map:
     """
     Map được định nghĩa bởi số phòng cần tạo, kích thước nhỏ nhất của 1 cell,
     và root cell là cell bao quát tất cả
     """
-    def __init__(self, width, height, randomizer, grid_size=16):
-        self.randomizer = randomizer
-        self.num_room = 10
-        self.grid_size = grid_size
+    def __init__(self, width, height, randomizer, grid_size=16, room_count=10):
+        self.width        = width
+        self.height       = height
+        self.randomizer   = randomizer
+        self.room_count   = room_count
+        self.grid_size    = grid_size
         self.min_cell_dim = grid_size * 2
-        self.root = Cell(32, 32, width-32, height-32, randomizer)
-        self.cells = []
+        self.root         = Cell(grid_size, grid_size, width-grid_size, height-grid_size, randomizer)
+        self.cells        = []
    
     def divide(self):
         """
         Chia nhỏ root cho đến khi có đủ số phòng yêu cầu
         """
         room = 1
-        while room < self.num_room:
+        while room < self.room_count:
             if self.root.divide(self.min_cell_dim):
                 room += 1
-
-    def shrink(self):
-        self.root.shrink(self.min_cell_dim)
 
     def get_neighbors(self):
         self.root.get_leaves(self.cells)
@@ -39,6 +40,9 @@ class Map:
                 if cell.y2 == other.y1:
                     if max(cell.x1, other.x1) < min(cell.x2, other.x2):
                         cell.vertical_neighbors.append(other)
+
+    def shrink(self):
+        self.root.shrink(self.min_cell_dim)
 
     def add_corridors(self):
         for cell in self.cells:
@@ -64,3 +68,12 @@ class Map:
 
     def display(self, surface):
         self.root.display(surface)
+
+    def to_grid(self):
+        map_grid = MapGrid(self.width // self.grid_size,
+                           self.height // self.grid_size)
+
+        for cell in self.cells:
+            cell.to_grid(map_grid, self.grid_size)
+
+        return map_grid
