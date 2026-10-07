@@ -1,17 +1,19 @@
+from modules.world import GridCoordinate
+
 class Camera:
-    def __init__(self, screen_width, screen_height):
-        self.focus = None
-        self.screen_width = screen_width
+    def __init__(self, screen_width, screen_height, tile_size):
+        self.focus     = GridCoordinate(0, 0)
+        self.tile_size = tile_size
+
+        self.screen_width  = screen_width
         self.screen_height = screen_height
 
-    def world_to_screen(self, world_coord):
-        if self.focus == None:
-            return (self.screen_width//2 + world_coord[0],
-                    self.screen_height//2 + world_coord[1])
-        else:
-            return (self.screen_width//2 + world_coord[0] - self.focus[0],
-                    self.screen_height//2 + world_coord[1] - self.focus[1])
+    def world_to_screen(self, grid_coordinate):
+        dx = grid_coordinate.x - self.focus.x 
+        dy = grid_coordinate.y - self.focus.y
 
-    def focus_on(self, world_coord):
-        self.focus = world_coord
+        return (self.screen_width/2  + dx * self.tile_size,
+                self.screen_height/2 + dy * self.tile_size)
 
+    def focus_on(self, grid_coordinate):
+        self.focus = grid_coordinate

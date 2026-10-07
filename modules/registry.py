@@ -1,9 +1,13 @@
 from enum import Enum, auto
+
 class Tiles(Enum):
-    EMPTY = auto()
-    WALL = auto()
-    FLOOR = auto()
-    CORRIDOR = auto()
+    EMPTY    = (auto(), False)
+    WALL     = (auto(), False)
+    FLOOR    = (auto(), True)
+    CORRIDOR = (auto(), True)
+
+    def __init__(self, value, walkable):
+        self.walkable = walkable
 
 class Characters(Enum):
     BANDIT = auto()
