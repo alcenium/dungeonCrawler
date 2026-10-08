@@ -16,10 +16,11 @@ class Renderer:
                 }
 
         self.tile_types = {
-           Tiles.EMPTY:       self.atlases["tiles"].get("blank floor (dark grey)"),
-           Tiles.WALL:        self.atlases["tiles"].get("dirt wall (top)"),
-           Tiles.FLOOR:       self.atlases["tiles"].get("blank red floor"),
-           Tiles.CORRIDOR:    self.atlases["tiles"].get("grass 1"),
+           Tiles.EMPTY:       self.atlases["tiles"].get("blank floor (dark purple)"),
+           Tiles.WALL_TOP:    self.atlases["tiles"].get("dirt wall (top)"),
+           Tiles.WALL_SIDE:   self.atlases["tiles"].get("dirt wall (side)"),
+           Tiles.FLOOR:       self.atlases["tiles"].get("blank floor (dark grey)"),
+           Tiles.CORRIDOR:    self.atlases["tiles"].get("stone floor 2"),
            Characters.BANDIT: self.atlases["rogues"].get("bandit"),
         }
 

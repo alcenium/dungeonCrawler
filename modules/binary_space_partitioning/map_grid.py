@@ -21,6 +21,33 @@ class MapGrid:
                 x >= self.width or
                 y >= self.height)
 
+    def fill_wall(self):
+        neighbors = ((-1, -1), (0, -1), (1, -1),
+                     (-1,  0),          (1,  0),
+                     (-1,  1), (0,  1), (1,  1))
+
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                cell_self = self.get(x, y)
+                for neighbor_relative_pos in neighbors:
+                    neighbor = self.get(x + neighbor_relative_pos[0],
+                                        y + neighbor_relative_pos[1])
+                    if cell_self != Tiles.EMPTY:
+                        continue
+                    if neighbor != None and neighbor != Tiles.EMPTY and neighbor != Tiles.WALL_TOP:
+                        self.set(x, y, Tiles.WALL_TOP)
+
+    def add_wall_depth(self):
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                cell_south = self.get(x, y + 1)
+                cell_self  = self.get(x, y)
+
+                if cell_self != Tiles.WALL_TOP:
+                    continue
+                if cell_south != Tiles.WALL_TOP:
+                    self.set(x, y, Tiles.WALL_SIDE)
+
     def display(self, display, grid_size):
         for x in range(self.width):
             for y in range(self.height):

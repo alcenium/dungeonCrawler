@@ -1,10 +1,11 @@
 from enum import Enum, auto
 
 class Tiles(Enum):
-    EMPTY    = (auto(), False)
-    WALL     = (auto(), False)
-    FLOOR    = (auto(), True)
-    CORRIDOR = (auto(), True)
+    EMPTY     = (auto(), True)
+    WALL_TOP  = (auto(), False)
+    WALL_SIDE = (auto(), False)
+    FLOOR     = (auto(), True)
+    CORRIDOR  = (auto(), True)
 
     def __init__(self, value, walkable):
         self.walkable = walkable

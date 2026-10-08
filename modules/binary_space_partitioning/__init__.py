@@ -10,4 +10,8 @@ def generate_map(seed=None, grid_size=16, width=70, height=50, room_count=10):
     map.add_corridors()
     map.reduce_corridor()
     map.align()
-    return map.to_grid()
+
+    map_grid = map.to_grid()
+    map_grid.fill_wall()
+    map_grid.add_wall_depth()
+    return map_grid
