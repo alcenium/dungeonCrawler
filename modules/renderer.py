@@ -28,8 +28,11 @@ class Renderer:
         Biến tọa độ thế giới sang tọa độ trên màn hình
         Hiển thị mặt phẳng lên màn hình
         """
+        if not camera.object_visible(grid_coordinate):
+            return
+
         surface = self.tile_types[tile]
-        screen_position = camera.world_to_screen(grid_coordinate)
+        screen_position = camera.grid_to_screen(grid_coordinate)
         self.virtual_screen.blit(surface, screen_position)
 
     def render_world(self, camera, world):
