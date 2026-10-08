@@ -9,7 +9,7 @@ pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 
-seed = 'Hi'
+seed = 'b'
 randomizer = random.Random(seed)
 
 grid_size = 16
@@ -51,8 +51,9 @@ while running:
 
     screen.fill((25, 25, 25))
     # map.display(screen)
-    # draw_grid(grid_size)
     map_grid.display(screen, grid_size)
+    draw_grid(grid_size)
+
     pygame.display.flip()
 
     clock.tick(60)

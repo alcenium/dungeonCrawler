@@ -25,13 +25,9 @@ class MapGrid:
         for x in range(self.width):
             for y in range(self.height):
                 if self.get(x, y) == Tiles.FLOOR:
-                    pygame.draw.rect(display, 'black',
-                                     (x*grid_size, y*grid_size, grid_size, grid_size))
                     pygame.draw.rect(display, 'white',
-                                     (x*grid_size+1, y*grid_size+1, grid_size-2, grid_size-2))
+                                     (x*grid_size, y*grid_size, grid_size, grid_size))
 
                 if self.get(x, y) == Tiles.CORRIDOR:
-                    pygame.draw.rect(display, 'black',
-                                     (x*grid_size, y*grid_size, grid_size, grid_size))
                     pygame.draw.rect(display, (112, 128, 144),
-                                     (x*grid_size+1, y*grid_size+1, grid_size-2, grid_size-2))
+                                     (x*grid_size, y*grid_size, grid_size, grid_size))
