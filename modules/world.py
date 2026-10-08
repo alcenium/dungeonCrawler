@@ -19,7 +19,7 @@ class World:
             self.player.move(grid_coordinate)
 
     def __iter__(self):
-        return WorldIterator(self.map_grid, self.map_grid.width, self.map_grid.height)
+        return WorldIterator(self.map_grid)
 
 class GridCoordinate:
     def __init__(self, x=0, y=0):
@@ -33,21 +33,18 @@ class GridCoordinate:
         return f"{self.x}, {self.y}"
 
 class WorldIterator:
-    def __init__(self, map_grid, map_width, map_height):
+    def __init__(self, map_grid):
         self.map_grid = map_grid
-        self.map_width  = map_width
-        self.map_height = map_height
-
         self.index_column = -1
         self.index_row = 0
 
     def __next__(self):
         self.index_column += 1
-        if self.index_column >= self.map_width:
+        if self.index_column >= self.map_grid.width:
             self.index_column = 0
             self.index_row += 1
 
-        if self.index_row >= self.map_height:
+        if self.index_row >= self.map_grid.height:
             raise StopIteration
 
         return GridCoordinate(self.index_column, self.index_row)
