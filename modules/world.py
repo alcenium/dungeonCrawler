@@ -7,7 +7,9 @@ class World:
     def __init__(self, map_grid, character_type=Characters.BANDIT):
         self.map_grid = map_grid
 
-        self.player = Player(GridCoordinate(2, 2), character_type)
+        self.player = Player(GridCoordinate(map_grid.spawn_point.x,
+                                            map_grid.spawn_point.y),
+                             character_type)
 
     def get_tile(self, grid_coordinate):
         return self.map_grid.get(grid_coordinate.x, grid_coordinate.y)
@@ -15,7 +17,7 @@ class World:
     def move_player(self, x, y):
         grid_coordinate= GridCoordinate(x, y)
         neighbor_tile = self.player.get_coord() + grid_coordinate
-        if (self.get_tile(neighbor_tile).walkable):
+        if self.get_tile(neighbor_tile).walkable:
             self.player.move(grid_coordinate)
 
     def __iter__(self):
@@ -23,8 +25,8 @@ class World:
 
 class GridCoordinate:
     def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
+        self.x = int(x)
+        self.y = int(y)
 
     def __add__(self, other):
         return GridCoordinate(self.x + other.x, self.y + other.y)
