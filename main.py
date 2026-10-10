@@ -44,18 +44,28 @@ class DungeonCrawler:
                     self.running = False
                 case pygame.KEYDOWN:
                     match event.key:
+                        case pygame.K_q:
+                            self.world.move_player(-1, -1)
                         case pygame.K_w:
                             self.world.move_player(0, -1)
-                        case pygame.K_s:
-                            self.world.move_player(0, 1)
+                        case pygame.K_e:
+                            self.world.move_player(1, -1)
                         case pygame.K_a:
                             self.world.move_player(-1, 0)
+                        case pygame.K_s:
+                            self.world.move_player(0, 0)
                         case pygame.K_d:
                             self.world.move_player(1, 0)
+                        case pygame.K_z:
+                            self.world.move_player(-1, 1)
+                        case pygame.K_x:
+                            self.world.move_player(0, 1)
+                        case pygame.K_c:
+                            self.world.move_player(1, 1)
 
     def process_key(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_q]:
+        if keys[pygame.K_f]:
             self.running = False
 
     def update(self):
