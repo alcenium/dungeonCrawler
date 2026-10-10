@@ -6,18 +6,21 @@ class Cell:
     Cell được định nghĩa bởi góc trên cùng bên trái (x1, y1) và góc dưới bên phải (x2, y2).
     Nó chứa 2 Cell con chia ra theo đường dọc là trái và phải
     """
-    def __init__(self, x1, y1, x2, y2, randomizer):
+    def __init__(self, x1, y1, x2, y2, randomizer, grid_size):
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
         self.left = None
         self.right = None
+        self.grid_size = grid_size
         self.randomizer = randomizer
         self.horizontal_neighbors = []
         self.vertical_neighbors = []
         self.horizontal_corridors = []
         self.vertical_corridors = []
+
+        self.spawn_point = None
 
     def get_leaves(self, cells):
         if self.left == None:
@@ -45,13 +48,13 @@ class Cell:
 
         if w > h:
             new_mid_point = self.x1 + w * (self.randomizer.randint(3, 6) / 10)
-            self.left = Cell(self.x1, self.y1, new_mid_point, self.y2, self.randomizer)
-            self.right = Cell(new_mid_point, self.y1, self.x2, self.y2, self.randomizer)
+            self.left = Cell(self.x1, self.y1, new_mid_point, self.y2, self.randomizer, self.grid_size)
+            self.right = Cell(new_mid_point, self.y1, self.x2, self.y2, self.randomizer, self.grid_size)
             return True
         else:
             new_mid_point = self.y1 + h * (self.randomizer.randint(3, 6) / 10)
-            self.left = Cell(self.x1, self.y1, self.x2, new_mid_point, self.randomizer)
-            self.right = Cell(self.x1, new_mid_point, self.x2, self.y2, self.randomizer)
+            self.left = Cell(self.x1, self.y1, self.x2, new_mid_point, self.randomizer, self.grid_size)
+            self.right = Cell(self.x1, new_mid_point, self.x2, self.y2, self.randomizer, self.grid_size)
             return True
 
     def shrink(self, min_cell_dim):
@@ -73,17 +76,54 @@ class Cell:
             self.left.shrink(min_cell_dim)
             self.right.shrink(min_cell_dim)
 
+    def align(self):
+        self.x1 -= self.x1 % self.grid_size
+        self.y1 -= self.y1 % self.grid_size
+        self.x2 -= self.x2 % self.grid_size
+        self.y2 -= self.y2 % self.grid_size
+        for corridor in self.horizontal_corridors:
+            corridor.align(self.grid_size)
+        for corridor in self.vertical_corridors:
+            corridor.align(self.grid_size)
+        if self.spawn_point:
+            self.spawn_point.align(self.grid_size)
+
+    def reduce_corridor(self):
+        if self.horizontal_corridors and self.vertical_corridors:
+            match self.randomizer.randint(1, 2):
+                case 1:
+                    self.vertical_corridors.pop(0)
+                case 2:
+                    self.horizontal_corridors.pop(0)
+
+    def add_spawn_point(self):
+        spawn_point_x = self.randomizer.uniform(self.x1, self.x2 - self.grid_size)
+        spawn_point_y = self.randomizer.uniform(self.y1, self.y2 - self.grid_size)
+        self.spawn_point = SpawnPoint(spawn_point_x, spawn_point_y)
+
+    def to_grid(self, map_grid):
+        x_start = int(self.x1 // self.grid_size)
+        x_end   = int(self.x2 // self.grid_size)
+        y_start = int(self.y1 // self.grid_size)
+        y_end   = int(self.y2 // self.grid_size)
+
+        for x in range(x_start, x_end):
+            for y in range(y_start, y_end):
+                map_grid.set(x, y, Tiles.FLOOR)
+
+        for corridor in self.horizontal_corridors:
+            corridor.to_grid(map_grid, self.grid_size)
+        for corridor in self.vertical_corridors:
+            corridor.to_grid(map_grid, self.grid_size)
+        if self.spawn_point:
+            self.spawn_point.to_grid(map_grid, self.grid_size)
+
     def display(self, surface):
         """ Vẽ viền ngoài màu tím, bên trong màu trắng để thể hiện 1 cell """
         if self.left != None:
             self.left.display(surface)
             self.right.display(surface)
         else:
-            pygame.draw.rect(surface, 'purple', (self.x1,
-                                                 self.y1,
-                                                 self.x2-self.x1,
-                                                 self.y2-self.y1))
-
             pygame.draw.rect(surface, 'white',  (self.x1+3,
                                                  self.y1+3,
                                                  self.x2-self.x1-6,
@@ -102,39 +142,25 @@ class Cell:
                 corridor.display(surface)
             for corridor in self.vertical_corridors:
                 corridor.display(surface)
-
-    def align(self, grid_size):
-        self.x1 -= self.x1 % grid_size
-        self.y1 -= self.y1 % grid_size
-        self.x2 -= self.x2 % grid_size
-        self.y2 -= self.y2 % grid_size
-        for corridor in self.horizontal_corridors:
-            corridor.align(grid_size)
-        for corridor in self.vertical_corridors:
-            corridor.align(grid_size)
-
-    def reduce_corridor(self):
-        if self.horizontal_corridors and self.vertical_corridors:
-            match self.randomizer.randint(1, 2):
-                case 1:
-                    self.vertical_corridors.pop(0)
-                case 2:
-                    self.horizontal_corridors.pop(0)
-
-    def to_grid(self, map_grid, grid_size):
-        x_start = int(self.x1 // grid_size)
-        x_end   = int(self.x2 // grid_size)
-        y_start = int(self.y1 // grid_size)
-        y_end   = int(self.y2 // grid_size)
-
-        for x in range(x_start, x_end):
-            for y in range(y_start, y_end):
-                map_grid.set(x, y, Tiles.FLOOR)
-
-        for corridor in self.horizontal_corridors:
-            corridor.to_grid(map_grid, grid_size)
-        for corridor in self.vertical_corridors:
-            corridor.to_grid(map_grid, grid_size)
+            if self.spawn_point:
+                pygame.draw.rect(surface, 'green', (self.spawn_point.x,
+                                                    self.spawn_point.y,
+                                                    self.grid_size,
+                                                    self.grid_size))
 
     def __str__(self):
         return f'[(x1:{self.x1}, y1:{self.y1}), (x2:{self.x2}, y2:{self.y2})]'
+
+class SpawnPoint:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def align(self, grid_size):
+        self.x -= self.x % grid_size
+        self.y -= self.y % grid_size
+
+    def to_grid(self, map_grid, grid_size):
+        x = self.x // grid_size
+        y = self.y // grid_size
+        map_grid.add_spawn_point(SpawnPoint(x, y))

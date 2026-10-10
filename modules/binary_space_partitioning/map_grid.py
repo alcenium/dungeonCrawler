@@ -2,10 +2,13 @@ import pygame
 from modules.registry import Tiles
 
 class MapGrid:
-    def __init__(self, width, height):
+    def __init__(self, width, height, grid_size):
         self.width = width
         self.height = height
+        self.grid_size = grid_size
         self.grid = [Tiles.EMPTY] * (width*height)
+
+        self.spawn_point = None
 
     def set(self, x, y, value):
         self.grid[y * self.width + x] = value
@@ -48,13 +51,22 @@ class MapGrid:
                 if cell_south != Tiles.WALL_TOP:
                     self.set(x, y, Tiles.WALL_SIDE)
 
-    def display(self, display, grid_size):
+    def add_spawn_point(self, spawn_point):
+        self.spawn_point = spawn_point
+
+    def display(self, surface):
         for x in range(self.width):
             for y in range(self.height):
                 if self.get(x, y) == Tiles.FLOOR:
-                    pygame.draw.rect(display, 'white',
-                                     (x*grid_size, y*grid_size, grid_size, grid_size))
+                    pygame.draw.rect(surface, 'white',
+                                     (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
 
                 if self.get(x, y) == Tiles.CORRIDOR:
-                    pygame.draw.rect(display, (112, 128, 144),
-                                     (x*grid_size, y*grid_size, grid_size, grid_size))
+                    pygame.draw.rect(surface, (112, 128, 144),
+                                     (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+
+        if self.spawn_point:
+            pygame.draw.rect(surface, 'green', (self.spawn_point.x * self.grid_size,
+                                                self.spawn_point.y * self.grid_size,
+                                                self.grid_size,
+                                                self.grid_size))

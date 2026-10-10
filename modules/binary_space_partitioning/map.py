@@ -14,7 +14,7 @@ class Map:
         self.room_count   = room_count
         self.grid_size    = grid_size
         self.min_cell_dim = grid_size * 2
-        self.root         = Cell(grid_size, grid_size, width-grid_size, height-grid_size, randomizer)
+        self.root         = Cell(grid_size, grid_size, width-grid_size, height-grid_size, randomizer, grid_size)
         self.cells        = []
    
     def divide(self):
@@ -64,16 +64,20 @@ class Map:
 
     def align(self):
         for cell in self.cells:
-            cell.align(self.grid_size)
+            cell.align()
 
     def display(self, surface):
         self.root.display(surface)
 
+    def add_spawn_point(self):
+        cell = self.randomizer.choice(self.cells)
+        cell.add_spawn_point()
+
     def to_grid(self):
         map_grid = MapGrid(self.width // self.grid_size,
-                           self.height // self.grid_size)
+                           self.height // self.grid_size, self.grid_size)
 
         for cell in self.cells:
-            cell.to_grid(map_grid, self.grid_size)
+            cell.to_grid(map_grid)
 
         return map_grid

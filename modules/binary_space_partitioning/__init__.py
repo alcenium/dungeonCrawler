@@ -8,7 +8,7 @@ def generate_map(seed=None, grid_size=16, width=70, height=50, room_count=10):
     map.get_neighbors()
     map.shrink()
     map.add_corridors()
-    map.reduce_corridor()
+    map.add_spawn_point()
     map.align()
 
     map_grid = map.to_grid()
