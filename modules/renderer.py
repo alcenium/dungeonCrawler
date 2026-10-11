@@ -11,8 +11,8 @@ class Renderer:
 
         self.tile_size = 32
         self.atlases = {
-                "tiles":    Atlas("32rogues/tiles.png",    "32rogues/tiles.txt",    32),
-                "rogues":   Atlas("32rogues/rogues.png",   "32rogues/rogues.txt",   32),
+                "tiles":    Atlas("assets/32rogues/tiles.png",    "assets/32rogues/tiles.txt",    32),
+                "rogues":   Atlas("assets/32rogues/rogues.png",   "assets/32rogues/rogues.txt",   32),
                 }
 
         self.tile_types = {
