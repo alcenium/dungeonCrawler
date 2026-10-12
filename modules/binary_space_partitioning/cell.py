@@ -1,35 +1,55 @@
 import pygame
+from random import Random
+from pygame import Surface
+
 from modules.registry import Tiles
+from modules.binary_space_partitioning.spawn_point import SpawnPoint
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Optional, Any
+    from modules.binary_space_partitioning.map_grid import MapGrid
+    from modules.binary_space_partitioning.corridor import Corridor
 
 class Cell:
     """
     Cell được định nghĩa bởi góc trên cùng bên trái (x1, y1) và góc dưới bên phải (x2, y2).
     Nó chứa 2 Cell con chia ra theo đường dọc là trái và phải
     """
-    def __init__(self, x1, y1, x2, y2, randomizer, grid_size):
+    def __init__(self,
+                 x1: int = 0,
+                 y1: int = 0,
+                 x2: int = 0,
+                 y2: int = 0,
+                 randomizer: Any = None,
+                 grid_size : int = 0):
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
-        self.left = None
-        self.right = None
-        self.grid_size = grid_size
+        self.grid_size  = grid_size
         self.randomizer = randomizer
-        self.horizontal_neighbors = []
-        self.vertical_neighbors = []
-        self.horizontal_corridors = []
-        self.vertical_corridors = []
 
-        self.spawn_point = None
+        self.left : Any = None
+        self.right: Any = None
 
-    def get_leaves(self, cells):
+        self.horizontal_neighbors: list[Cell] = []
+        self.vertical_neighbors  : list[Cell] = []
+
+        self.horizontal_corridors: list[Corridor] = []
+        self.vertical_corridors  : list[Corridor] = []
+
+        self.spawn_point: SpawnPoint | None = None
+
+    def get_leaves(self, cells: list[Cell]) -> None:
+        """ Thêm tất cả các cell nhỏ nhất (phòng) vào trong danh sách được chỉ định """
         if self.left == None:
             cells.append(self)
         else:
             self.left.get_leaves(cells)
             self.right.get_leaves(cells)
 
-    def divide(self, min_cell_dim):
+    def divide(self, min_cell_dim: int):
         """
         Chia nhỏ cell ra thành cell trái & phải/trên & dưới, trên cạnh lớn hơn
         Nếu cell có cell con, chọn ngẫu nhiên 1 cell con và chia nhỏ nó
@@ -47,17 +67,17 @@ class Cell:
                 return self.right.divide(min_cell_dim)
 
         if w > h:
-            new_mid_point = self.x1 + w * (self.randomizer.randint(3, 6) / 10)
-            self.left = Cell(self.x1, self.y1, new_mid_point, self.y2, self.randomizer, self.grid_size)
+            new_mid_point = int(self.x1 + w * (self.randomizer.randint(3, 6) / 10))
+            self.left  = Cell(self.x1, self.y1, new_mid_point, self.y2, self.randomizer, self.grid_size)
             self.right = Cell(new_mid_point, self.y1, self.x2, self.y2, self.randomizer, self.grid_size)
             return True
         else:
-            new_mid_point = self.y1 + h * (self.randomizer.randint(3, 6) / 10)
-            self.left = Cell(self.x1, self.y1, self.x2, new_mid_point, self.randomizer, self.grid_size)
+            new_mid_point = int(self.y1 + h * (self.randomizer.randint(3, 6) / 10))
+            self.left  = Cell(self.x1, self.y1, self.x2, new_mid_point, self.randomizer, self.grid_size)
             self.right = Cell(self.x1, new_mid_point, self.x2, self.y2, self.randomizer, self.grid_size)
             return True
 
-    def shrink(self, min_cell_dim):
+    def shrink(self, min_cell_dim: int) -> None:
         """
         Thu nhỏ cell trong 1 khoảng ngẫu nhiên cố định bằng cách dịch 4 góc về phía trung tâm của cell
         Nếu cell con có tồn tại, thu nhỏ chúng thay vì cell hiện tại
@@ -65,18 +85,19 @@ class Cell:
         if self.left == None:
             w = self.x2 - self.x1
             h = self.y2 - self.y1
-            new_w = max(w * self.randomizer.uniform(0.25, 0.9), min_cell_dim)
-            new_h = max(h * self.randomizer.uniform(0.25, 0.9), min_cell_dim)
+            new_w = int(max(w * self.randomizer.uniform(0.25, 0.9), min_cell_dim))
+            new_h = int(max(h * self.randomizer.uniform(0.25, 0.9), min_cell_dim))
 
-            self.x1 += 0.5 * (w - new_w)
-            self.x2 -= 0.5 * (w - new_w)
-            self.y1 += 0.5 * (h - new_h)
-            self.y2 -= 0.5 * (h - new_h)
+            self.x1 += int(0.5 * (w - new_w))
+            self.x2 -= int(0.5 * (w - new_w))
+            self.y1 += int(0.5 * (h - new_h))
+            self.y2 -= int(0.5 * (h - new_h))
         else:
             self.left.shrink(min_cell_dim)
             self.right.shrink(min_cell_dim)
 
-    def align(self):
+    def align(self) -> None:
+        """ Căn tọa độ phòng và các hành lang đang chứa theo grid tọa độ """
         self.x1 -= self.x1 % self.grid_size
         self.y1 -= self.y1 % self.grid_size
         self.x2 -= self.x2 % self.grid_size
@@ -88,7 +109,8 @@ class Cell:
         if self.spawn_point:
             self.spawn_point.align(self.grid_size)
 
-    def reduce_corridor(self):
+    def reduce_corridor(self) -> None:
+        """ Giảm số lượng hành lang, cần sửa lại """
         if self.horizontal_corridors and self.vertical_corridors:
             match self.randomizer.randint(1, 2):
                 case 1:
@@ -96,12 +118,16 @@ class Cell:
                 case 2:
                     self.horizontal_corridors.pop(0)
 
-    def add_spawn_point(self):
-        spawn_point_x = self.randomizer.uniform(self.x1, self.x2 - self.grid_size)
-        spawn_point_y = self.randomizer.uniform(self.y1, self.y2 - self.grid_size)
+    def add_spawn_point(self) -> None:
+        """ Đặt spawn point vào 1 điểm ngẫu nhiên trong phòng """
+        spawn_point_x = int(self.randomizer.randint(self.x1, self.x2 - self.grid_size))
+        spawn_point_y = int(self.randomizer.randint(self.y1, self.y2 - self.grid_size))
         self.spawn_point = SpawnPoint(spawn_point_x, spawn_point_y)
 
-    def to_grid(self, map_grid):
+    def to_grid(self, map_grid: MapGrid):
+        """ Chuyển tất cả vật thể trong phòng thành grid tọa độ, và các
+            điểm trên grid tọa độ, và thêm chúng vào map_grid
+        """
         x_start = int(self.x1 // self.grid_size)
         x_end   = int(self.x2 // self.grid_size)
         y_start = int(self.y1 // self.grid_size)
@@ -118,7 +144,7 @@ class Cell:
         if self.spawn_point:
             self.spawn_point.to_grid(map_grid, self.grid_size)
 
-    def display(self, surface):
+    def display(self, surface: Surface):
         """ Vẽ viền ngoài màu tím, bên trong màu trắng để thể hiện 1 cell """
         if self.left != None:
             self.left.display(surface)
@@ -150,17 +176,3 @@ class Cell:
 
     def __str__(self):
         return f'[(x1:{self.x1}, y1:{self.y1}), (x2:{self.x2}, y2:{self.y2})]'
-
-class SpawnPoint:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def align(self, grid_size):
-        self.x -= self.x % grid_size
-        self.y -= self.y % grid_size
-
-    def to_grid(self, map_grid, grid_size):
-        x = self.x // grid_size
-        y = self.y // grid_size
-        map_grid.add_spawn_point(SpawnPoint(x, y))

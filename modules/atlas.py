@@ -1,41 +1,44 @@
 import pygame
-from pygame import Surface
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pygame import Surface
 
 class Atlas:
-    def __init__(self, atlas_file: str, atlas_index_file: str, tile_size: int):
+    """
+    Mỗi vật thể của class chứa tọa độ các sprite được gán theo tên,
+    và atlas(hình ảnh) chứa toàn bộ sprite trong set đó
+    """
+    def __init__(self, atlas_file: str, atlas_index_file: str, tile_size: int) -> None:
         self.tile_size = tile_size
         self.atlas_index_file = atlas_index_file
 
-        self.indexes = {}
+        self.indexes: dict[str, tuple[int, int]] = {}
+        self.image: Surface = pygame.image.load(atlas_file).convert()
+
         self.extract_indexes()
 
-        self.image = pygame.image.load(atlas_file).convert()
-
     def get(self, item_name:str) -> Surface:
-        """
-        Return the subsurface containing the required tile
-        """
-        tile_pos = self.indexes[item_name]
+        """ Trả về subsurface chứa sprite được yêu cầu """
+        tile_pos: tuple[int, int] = self.indexes[item_name]
         return self.image.subsurface(tile_pos[1] * self.tile_size,
                                      tile_pos[0] * self.tile_size,
                                      self.tile_size,
                                      self.tile_size)
 
-    def debug(self):
-        """
-        Print out all tiles's name inside the atlas
-        """
+    def debug(self) -> None:
+        """ Hiển thị danh sách tên các sprite: tọa độ """
         for key, value in self.indexes.items():
             print(f"{key}: {value}")
 
-    def extract_indexes(self):
+    def extract_indexes(self) -> None:
         """
-        Open the index file
-        Stores all the names and individual coordinate in a dictionary
+        Mở file index và lưu tất cả tọa độ của các sprite vào indexes
+        'rouge': (1, 1)
         """
         with open(self.atlas_index_file) as file:
             column = 0
-            row = 0
+            row    = 0
 
             lines = file.read().splitlines()
             for line in lines:

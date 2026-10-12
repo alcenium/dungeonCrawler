@@ -1,14 +1,18 @@
-import random
 from modules.binary_space_partitioning.map import Map
+from random import Random
 
 class MapGenerator:
-    def __init__(self, seed=None, grid_size=16, width=70, height=50, room_count=10):
+    def __init__(self, seed: Any = None,
+                 grid_size : int = 16,
+                 width     : int = 70,
+                 height    : int = 50,
+                 room_count: int = 10) -> None:
         self.seed = seed
         self.width = width
         self.height = height
         self.grid_size = grid_size
         self.room_count = room_count
-        self.randomizer = random.Random(seed)
+        self.randomizer: Random = Random(seed)
 
     def get_state(self):
         return self.randomizer.get_state()

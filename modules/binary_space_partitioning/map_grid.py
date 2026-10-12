@@ -1,14 +1,19 @@
 import pygame
 from modules.registry import Tiles
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from modules.binary_space_partitioning.spawn_point import SpawnPoint
+    from typing import Any
+
 class MapGrid:
-    def __init__(self, width, height, grid_size):
+    def __init__(self, width: int, height: int, grid_size):
         self.width = width
         self.height = height
         self.grid_size = grid_size
-        self.grid = [Tiles.EMPTY] * (width*height)
+        self.grid: list[Tiles] = [Tiles.EMPTY] * (width*height)
 
-        self.spawn_point = None
+        self.spawn_point: Any = None
 
     def set(self, x, y, value):
         self.grid[y * self.width + x] = value
@@ -51,7 +56,7 @@ class MapGrid:
                 if cell_south != Tiles.WALL_TOP:
                     self.set(x, y, Tiles.WALL_SIDE)
 
-    def add_spawn_point(self, spawn_point):
+    def add_spawn_point(self, spawn_point: SpawnPoint):
         self.spawn_point = spawn_point
 
     def display(self, surface):
