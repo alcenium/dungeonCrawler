@@ -1,3 +1,4 @@
 modules/__pycache__/
 modules/binary_space_partitioning/__pycache__/
+modules/entities/__pycache__/
 save_file.json

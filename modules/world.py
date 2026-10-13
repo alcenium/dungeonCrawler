@@ -1,7 +1,8 @@
 from math import floor
 
-from modules.player   import Player
-from modules.registry import Characters, Tiles
+from modules.entities.player      import Player
+from modules.entities.small_slime import SmallSlime
+from modules.registry import Characters, Tiles, Enemies
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -14,6 +15,13 @@ class World:
         self.player = Player(GridCoordinate(map_grid.spawn_point.x,
                                             map_grid.spawn_point.y),
                              character_type)
+        self.add_enemies()
+
+    def add_enemies(self):
+        for enemy in self.map_grid.enemies:
+            if enemy.type == Enemies.SMALL_SLIME:
+                grid_coordinate = GridCoordinate(enemy.x, enemy.y)
+                self.enemies.append(SmallSlime(grid_coordinate, Enemies.SMALL_SLIME))
 
     def get_tile(self, grid_coordinate: GridCoordinate) -> Tiles:
         return self.map_grid.get(grid_coordinate.x, grid_coordinate.y)

@@ -2,7 +2,6 @@ import json
 import pygame
 
 from modules.atlas import Atlas
-from modules.camera import Camera
 from modules.renderer import Renderer
 
 from modules.world import World
@@ -27,8 +26,7 @@ class DungeonCrawler:
         self.world = World(self.map_generator.generate_map(),
                            character_type = self.character_type)
 
-        self.camera = Camera(self.virtual_width, self.virtual_height, 32)
-        self.renderer = Renderer(self.virtual_width, self.virtual_height)
+        self.renderer = Renderer(self.virtual_width, self.virtual_height, 32)
 
         self.dt = 0
         self.fps = 60
@@ -79,7 +77,7 @@ class DungeonCrawler:
             self.running = False
 
     def update(self):
-        self.camera.focus_on(self.world.player.coordinate)
+        self.renderer.camera.focus_on(self.world.player.coordinate)
 
     def save_data(self):
         with open('save_file.json', 'rt') as save_file:
@@ -91,10 +89,9 @@ class DungeonCrawler:
 
     def draw(self):
         self.renderer.virtual_screen.fill((25,25,25))
-        self.renderer.render_world(self.camera, self.world)
-        self.renderer.render(self.camera,
-                             self.world.player.character_type,
-                             self.world.player.coordinate)
+        self.renderer.render_world(self.world)
+        self.renderer.render_entity(self.world.player)
+        self.renderer.render_entities(self.world.enemies)
 
         self.renderer.to_screen(self.screen)
         pygame.display.flip()
