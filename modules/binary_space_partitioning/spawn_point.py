@@ -11,7 +11,7 @@ class SpawnPoint:
         self.x -= self.x % grid_size
         self.y -= self.y % grid_size
 
-    def to_grid(self, map_grid: MapGrid, grid_size: int):
+    def to_grid(self, grid_size: int):
         x = self.x // grid_size
         y = self.y // grid_size
-        map_grid.add_spawn_point(SpawnPoint(x, y))
+        return SpawnPoint(x, y)

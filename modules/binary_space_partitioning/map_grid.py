@@ -1,5 +1,5 @@
 import pygame
-from modules.registry import Tiles
+from modules.registry import Tiles, Enemies
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -14,6 +14,7 @@ class MapGrid:
         self.grid: list[Tiles] = [Tiles.EMPTY] * (width*height)
 
         self.spawn_point: Any = None
+        self.enemies: list[Enemies] = []
 
     def set(self, x, y, value):
         self.grid[y * self.width + x] = value
@@ -69,6 +70,18 @@ class MapGrid:
                 if self.get(x, y) == Tiles.CORRIDOR:
                     pygame.draw.rect(surface, (112, 128, 144),
                                      (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+
+                if self.get(x, y) == Tiles.WALL_TOP:
+                    pygame.draw.rect(surface, (165, 42, 42),
+                                     (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+
+                if self.get(x, y) == Tiles.WALL_SIDE:
+                    pygame.draw.rect(surface, (90, 0, 0),
+                                     (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+
+                for enemy in self.enemies:
+                    pygame.draw.rect(surface, (255, 0, 0),
+                                     (enemy.x*self.grid_size, enemy.y*self.grid_size, self.grid_size, self.grid_size))
 
         if self.spawn_point:
             pygame.draw.rect(surface, 'green', (self.spawn_point.x * self.grid_size,

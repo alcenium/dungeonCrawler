@@ -86,6 +86,12 @@ class Map:
         cell = self.randomizer.choice(self.cells)
         cell.add_spawn_point()
 
+    def add_enemies(self) -> None:
+        """ Chọn các phòng không có điểm hồi sinh để đặt kẻ địch """
+        for cell in self.cells:
+            if cell.spawn_point == None:
+                cell.add_enemy()
+
     def to_grid(self) -> MapGrid:
         """ Chuyển tất cả vật thể trong map thành grid tọa độ, và các
             điểm trên grid tọa độ và trả về MapGrid object chứa tất cả vật thể, tile

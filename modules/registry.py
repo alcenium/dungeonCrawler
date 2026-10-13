@@ -12,3 +12,6 @@ class Tiles(Enum):
 
 class Characters(Enum):
     BANDIT = auto()
+
+class Enemies(Enum):
+    SMALL_SLIME = auto()

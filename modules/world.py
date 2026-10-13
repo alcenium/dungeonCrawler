@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 class World:
     def __init__(self, map_grid: MapGrid, character_type: Characters = Characters.BANDIT) -> None:
+        self.enemies = []
         self.map_grid = map_grid
-
         self.player = Player(GridCoordinate(map_grid.spawn_point.x,
                                             map_grid.spawn_point.y),
                              character_type)

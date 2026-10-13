@@ -1,6 +1,10 @@
 from modules.binary_space_partitioning.map import Map
 from random import Random
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Any
+
 class MapGenerator:
     def __init__(self, seed: Any = None,
                  grid_size : int = 16,
@@ -32,6 +36,7 @@ class MapGenerator:
         map.shrink()
         map.add_corridors()
         map.add_spawn_point()
+        map.add_enemies()
         map.align()
 
         map_grid = map.to_grid()

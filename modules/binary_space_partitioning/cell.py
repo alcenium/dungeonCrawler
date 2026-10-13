@@ -2,8 +2,9 @@ import pygame
 from random import Random
 from pygame import Surface
 
-from modules.registry import Tiles
+from modules.registry import Tiles, Enemies
 from modules.binary_space_partitioning.spawn_point import SpawnPoint
+from modules.binary_space_partitioning.enemy import Enemy
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -40,6 +41,7 @@ class Cell:
         self.vertical_corridors  : list[Corridor] = []
 
         self.spawn_point: SpawnPoint | None = None
+        self.enemies: list[Enemy] = []
 
     def get_leaves(self, cells: list[Cell]) -> None:
         """ Thêm tất cả các cell nhỏ nhất (phòng) vào trong danh sách được chỉ định """
@@ -97,15 +99,20 @@ class Cell:
             self.right.shrink(min_cell_dim)
 
     def align(self) -> None:
-        """ Căn tọa độ phòng và các hành lang đang chứa theo grid tọa độ """
+        """ Căn tọa của mọi vật thể đang có theo grid tọa độ """
         self.x1 -= self.x1 % self.grid_size
         self.y1 -= self.y1 % self.grid_size
         self.x2 -= self.x2 % self.grid_size
         self.y2 -= self.y2 % self.grid_size
+
         for corridor in self.horizontal_corridors:
             corridor.align(self.grid_size)
         for corridor in self.vertical_corridors:
             corridor.align(self.grid_size)
+
+        for enemy in self.enemies:
+            enemy.align(self.grid_size)
+
         if self.spawn_point:
             self.spawn_point.align(self.grid_size)
 
@@ -120,9 +127,14 @@ class Cell:
 
     def add_spawn_point(self) -> None:
         """ Đặt spawn point vào 1 điểm ngẫu nhiên trong phòng """
-        spawn_point_x = int(self.randomizer.randint(self.x1, self.x2 - self.grid_size))
-        spawn_point_y = int(self.randomizer.randint(self.y1, self.y2 - self.grid_size))
+        spawn_point_x = self.randomizer.randint(self.x1, self.x2 - self.grid_size)
+        spawn_point_y = self.randomizer.randint(self.y1, self.y2 - self.grid_size)
         self.spawn_point = SpawnPoint(spawn_point_x, spawn_point_y)
+
+    def add_enemy(self) -> None:
+        x = self.randomizer.randint(self.x1, self.x2 - self.grid_size)
+        y = self.randomizer.randint(self.y1, self.y2 - self.grid_size)
+        self.enemies.append(Enemy(x, y, Enemies.SMALL_SLIME))
 
     def to_grid(self, map_grid: MapGrid):
         """ Chuyển tất cả vật thể trong phòng thành grid tọa độ, và các
@@ -141,8 +153,12 @@ class Cell:
             corridor.to_grid(map_grid, self.grid_size)
         for corridor in self.vertical_corridors:
             corridor.to_grid(map_grid, self.grid_size)
+
+        for enemy in self.enemies:
+            map_grid.enemies.append(enemy.to_grid(self.grid_size))
+
         if self.spawn_point:
-            self.spawn_point.to_grid(map_grid, self.grid_size)
+            map_grid.spawn_point = self.spawn_point.to_grid(self.grid_size)
 
     def display(self, surface: Surface):
         """ Vẽ viền ngoài màu tím, bên trong màu trắng để thể hiện 1 cell """
@@ -164,10 +180,18 @@ class Cell:
                                                     self.y2-3,
                                                     self.x2-self.x1,
                                                     3))
+
             for corridor in self.horizontal_corridors:
                 corridor.display(surface)
             for corridor in self.vertical_corridors:
                 corridor.display(surface)
+
+            for enemy in self.enemies:
+                pygame.draw.rect(surface, 'red', (enemy.x,
+                                                  enemy.y,
+                                                  self.grid_size,
+                                                  self.grid_size))
+
             if self.spawn_point:
                 pygame.draw.rect(surface, 'green', (self.spawn_point.x,
                                                     self.spawn_point.y,

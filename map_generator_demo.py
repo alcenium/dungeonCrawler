@@ -39,11 +39,21 @@ def execute_step(map, step):
             map.add_spawn_point()
             text = font.render('Thêm spawn point vào 1 phòng ngẫu nhiên', False, 'white')
         case 6:
+            map.add_enemies()
+            text = font.render('Thêm kẻ địch', False, 'white')
+        case 7:
             map.align()
             text = font.render('Căn tọa độ các phòng cho trùng với grid tọa độ', False, 'white')
-        case 7:
+        case 8:
             map = map.to_grid()
             text = font.render('Biến toàn bộ map thành một mảng chứa các phần tử: cell phòng, cell rỗng, cell đường đi', False, 'white')
+        case 9:
+            map.fill_wall()
+            text = font.render('Thêm tường bao quanh phòng và hành lang', False, 'white')
+        case 10:
+            map.add_wall_depth()
+            text = font.render('Thay đổi loại tường', False, 'white')
+
     return (map, text)
 
 def draw_grid(grid_size):
@@ -68,7 +78,7 @@ while running:
                         running = False
                     case pygame.K_r:
                         step += 1
-                        step %= 8
+                        step %= 11
                         map, text = execute_step(map, step)
 
     screen.fill((25, 25, 25))
