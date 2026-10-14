@@ -1,15 +1,15 @@
 import pygame
 
-from modules.camera import Camera
+from modules.camera   import Camera
 from modules.atlas    import Atlas
 from modules.registry import Characters, Tiles, Enemies
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from enum import Enum
+    from enum   import Enum
     from pygame import Surface
-    from modules.world    import World
-    from modules.world    import GridCoordinate
+    from modules.world           import World
+    from modules.grid_coordinate import GridCoordinate
 
 class Renderer:
     def __init__(self, virtual_width: int, virtual_height: int, grid_size: int) -> None:
@@ -35,26 +35,28 @@ class Renderer:
            Enemies.SMALL_SLIME:self.atlases["monsters"].get("small slime"),
         }
 
-    def render(self, tile: Enum, grid_coordinate: GridCoordinate) -> None:
+    def render(self, tile: Enum, tile_coordinate: GridCoordinate) -> None:
         """
         Biến tọa độ thế giới sang tọa độ trên màn hình
         Hiển thị mặt phẳng lên màn hình
         """
-        if not self.camera.object_visible(grid_coordinate):
+        if not self.camera.object_visible(tile_coordinate):
             return
 
         surface = self.tile_types[tile]
-        screen_position = self.camera.grid_to_screen(grid_coordinate)
+        screen_position = self.camera.grid_to_screen(tile_coordinate)
         self.virtual_screen.blit(surface, screen_position)
 
     def render_world(self, world: World):
         """ Hiển thị mọi thứ trong một danh sách tọa độ """
-        for grid_coordinate in world:
-            tile: Enum = world.get_tile(grid_coordinate)
-            self.render(tile, grid_coordinate)
+        for tile_coordinate in world:
+            tile: Enum = world.get_tile(tile_coordinate)
+            self.render(tile, tile_coordinate)
 
     def render_entity(self, entity):
         self.render(entity._type, entity.coordinate)
+        if hasattr(entity, 'direction'):
+            self.draw_move_intent(entity.coordinate + entity.direction)
 
     def render_entities(self, entities):
         for entity in entities:
@@ -66,3 +68,11 @@ class Renderer:
                  screen.get_height() // self.virtual_height)
 
         pygame.transform.scale_by(self.virtual_screen, scale, screen)
+
+    def draw_move_intent(self, tile_coordinate):
+        hight_light = (72, 0, 0)
+        screen_position = self.camera.grid_to_screen(tile_coordinate)
+        pygame.draw.rect(self.virtual_screen, hight_light, (screen_position[0], screen_position[1], 1, self.tile_size))
+        pygame.draw.rect(self.virtual_screen, hight_light, (screen_position[0], screen_position[1], self.tile_size, 1))
+        pygame.draw.rect(self.virtual_screen, hight_light, (screen_position[0] + self.tile_size - 1, screen_position[1], 1, self.tile_size))
+        pygame.draw.rect(self.virtual_screen, hight_light, (screen_position[0], screen_position[1] + self.tile_size - 1, self.tile_size, 1))
