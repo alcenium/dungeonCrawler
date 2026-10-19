@@ -16,8 +16,11 @@ class MapGrid:
         self.spawn_point: Any = None
         self.enemies: list[Enemies] = []
 
-    def set(self, x, y, value):
+    def set(self, x, y, value) -> bool:
+        if self.is_out_of_range(x,y):
+            return False
         self.grid[y * self.width + x] = value
+        return True
 
     def get(self, x, y):
         if self.is_out_of_range(x,y):

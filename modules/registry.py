@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 class Tiles(Enum):
-    EMPTY     = (auto(), True)
+    EMPTY     = (auto(), False)
     WALL_TOP  = (auto(), False)
     WALL_SIDE = (auto(), False)
     FLOOR     = (auto(), True)
