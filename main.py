@@ -74,8 +74,8 @@ class DungeonCrawler:
     def draw(self):
         self.renderer.virtual_screen.fill((25,25,25))
         self.renderer.render_world(self.world)
-        self.renderer.render_entity(self.world.player)
-        self.renderer.render_entities(self.world.enemies)
+        self.renderer.render_player(self.world.player)
+        self.renderer.render_enemies(self.world.enemies)
 
         self.renderer.to_screen(self.screen)
         pygame.display.flip()

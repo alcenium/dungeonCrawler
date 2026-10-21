@@ -13,6 +13,7 @@ class SmallSlime:
         self.coordinate = coordinate
         self._type      = _type
         self.turn = 1
+        self.moving = True
 
         random.seed()
         match random.randint(1, 4):
@@ -26,11 +27,9 @@ class SmallSlime:
                 self.direction = ( 0,-1)
 
     def update(self, world):
-        self.turn += 1    
-        self.turn %= 2
-        if self.turn == 0:
+        self.moving = not self.moving
+        if self.moving:
             self.move(world)
-
 
     def move(self, world):
         neighbor_pos = self.coordinate + self.direction

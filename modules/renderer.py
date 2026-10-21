@@ -54,14 +54,14 @@ class Renderer:
             tile_coordinate = tile_data[1]
             self.render(tile, tile_coordinate)
 
-    def render_entity(self, entity):
-        self.render(entity._type, entity.coordinate)
-        if hasattr(entity, 'direction'):
-            self.draw_move_intent(entity.coordinate + entity.direction)
+    def render_enemies(self, enemies):
+        for enemy in enemies:
+            self.render(enemy._type, enemy.coordinate)
+            if not enemy.moving:
+                self.draw_move_intent(enemy.coordinate + enemy.direction)
 
-    def render_entities(self, entities):
-        for entity in entities:
-            self.render_entity(entity)
+    def render_player(self, player):
+        self.render(player._type, player.coordinate)
 
     def to_screen(self, screen: Surface):
         """ Scale và đặt virtual_screen lên màn hình """
