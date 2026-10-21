@@ -49,8 +49,9 @@ class Renderer:
 
     def render_world(self, world: World):
         """ Hiển thị mọi thứ trong một danh sách tọa độ """
-        for tile_coordinate in world:
-            tile: Enum = world.get_tile(tile_coordinate)
+        for tile_data in world:
+            tile: Enum = tile_data[0]
+            tile_coordinate = tile_data[1]
             self.render(tile, tile_coordinate)
 
     def render_entity(self, entity):

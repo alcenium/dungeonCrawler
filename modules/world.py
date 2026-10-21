@@ -25,6 +25,8 @@ class World:
                 self.enemies.append(SmallSlime(tile_coordinate, Enemies.SMALL_SLIME))
 
     def get_tile(self, tile_coordinate: GridCoordinate) -> Tiles:
+        if tile_coordinate == self.player.coordinate:
+            return self.player
         return self.map_grid.get(tile_coordinate.x, tile_coordinate.y)
 
     def is_walkable(self, tile_coordinate):
@@ -52,4 +54,5 @@ class WorldIterator:
         if self.index_row >= self.map_grid.height:
             raise StopIteration
 
-        return GridCoordinate(self.index_column, self.index_row)
+        return (self.map_grid.grid[self.index_row * self.map_grid.width + self.index_column],
+                GridCoordinate(self.index_column, self.index_row))

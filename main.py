@@ -19,7 +19,7 @@ class DungeonCrawler:
         self.screen         = pygame.display.set_mode((self.width, self.height))
         self.clock          = pygame.time.Clock()
 
-        self.map_seed = 'b'
+        self.map_seed = None
         self.map_generator = MapGenerator(seed=self.map_seed)
 
         self.character_type = Characters.BANDIT

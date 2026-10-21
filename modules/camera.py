@@ -27,6 +27,10 @@ class Camera:
         return (x_coordinate < self.screen_width  - self.tile_size and
                 y_coordinate < self.screen_height - self.tile_size)
 
-    def focus_on(self, grid_coordinate) -> None:
+    def focus_on(self, _object) -> None:
         """ Chọn tọa độ trung tâm của màn hình """
-        self.focus = grid_coordinate
+        match _object:
+            case GridCoordinate():
+                self.focus = _object
+            case tuple():
+                self.focus = GridCoordinate(_object[0], _object[1])
