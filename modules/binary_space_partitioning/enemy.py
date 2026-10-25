@@ -6,11 +6,14 @@ class Enemy:
         self.y = y
         self.type: Enemies = type
 
-    def align(self, grid_size: int) -> None:
-        self.x -= self.x % grid_size
-        self.y -= self.y % grid_size
+    def __eq__(self, point) -> bool:
+        if type(point) == tuple:
+            return (self.x == point[0] and self.y == point[1])
+        else:
+            raise ValueError(f'Cannot compare enemy to {type(point)}')
 
-    def to_grid(self, grid_size: int):
-        x = self.x // grid_size
-        y = self.y // grid_size
-        return Enemy(x, y, self.type)
+    def __ne__(self, point):
+        if type(point) == tuple:
+            return (self.x != point[0] or self.y != point[1])
+        else:
+            raise ValueError(f'Cannot compare enemy to {type(point)}')

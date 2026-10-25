@@ -160,6 +160,12 @@ class Cell:
         if self.spawn_point:
             map_grid.spawn_point = self.spawn_point.to_grid(self.grid_size)
 
+    def to_room_on_grid(self):
+        return (int(self.x1 // self.grid_size),
+                int(self.y1 // self.grid_size),
+                int(self.x2 // self.grid_size) - 1,
+                int(self.y2 // self.grid_size) - 1)
+
     def display(self, surface: Surface):
         """ Vẽ viền ngoài màu tím, bên trong màu trắng để thể hiện 1 cell """
         if self.left != None:

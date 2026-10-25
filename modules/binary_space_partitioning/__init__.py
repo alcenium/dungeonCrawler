@@ -10,12 +10,14 @@ class MapGenerator:
                  grid_size : int = 16,
                  width     : int = 70,
                  height    : int = 50,
-                 room_count: int = 10) -> None:
+                 room_count: int = 10,
+                 min_size  : int = 3) -> None:
         self.seed = seed
         self.width = width
         self.height = height
         self.grid_size = grid_size
         self.room_count = room_count
+        self.min_size = min_size
         self.randomizer: Random = Random(seed)
 
     def get_state(self):
@@ -29,17 +31,18 @@ class MapGenerator:
                   self.height * self.grid_size,
                   self.randomizer,
                   grid_size=self.grid_size,
-                  room_count=self.room_count)
+                  room_count=self.room_count,
+                  min_size=self.min_size)
 
         map.divide()
         map.get_neighbors()
         map.shrink()
         map.add_corridors()
-        map.add_spawn_point()
-        map.add_enemies()
         map.align()
 
         map_grid = map.to_grid()
+        map_grid.add_spawn_point()
+        map_grid.add_enemies()
         map_grid.fill_wall()
         map_grid.add_wall_depth()
         return map_grid

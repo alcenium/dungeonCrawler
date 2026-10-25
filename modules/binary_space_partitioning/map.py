@@ -12,13 +12,18 @@ class Map:
     """ Map được định nghĩa bởi số phòng cần tạo, kích thước nhỏ nhất của 1 cell,
         và root cell là cell bao quát tất cả
     """
-    def __init__(self, width: int, height: int, randomizer: Random, grid_size: int = 16, room_count: int = 10) -> None:
+    def __init__(self, width: int,
+                 height: int,
+                 randomizer: Random,
+                 grid_size: int = 16,
+                 room_count: int = 10,
+                 min_size: int = 2) -> None:
         self.width             = width
         self.height            = height
         self.randomizer        = randomizer
         self.room_count        = room_count
         self.grid_size         = grid_size
-        self.min_cell_dim      = grid_size * 2
+        self.min_cell_dim      = min_size
 
         self.root : Cell       = Cell(grid_size, grid_size, width-grid_size, height-grid_size, randomizer, grid_size)
         self.cells: list[Cell] = []
@@ -81,25 +86,17 @@ class Map:
         """ Hiển thị tất cả lên mặt phẳng được chỉ định """
         self.root.display(surface)
 
-    def add_spawn_point(self) -> None:
-        """ Chọn một phòng ngẫu nhiên và dặt điểm sinh ra người chơi ở đó """
-        cell = self.randomizer.choice(self.cells)
-        cell.add_spawn_point()
-
-    def add_enemies(self) -> None:
-        """ Chọn các phòng không có điểm hồi sinh để đặt kẻ địch """
-        for cell in self.cells:
-            if cell.spawn_point == None:
-                cell.add_enemy()
-
     def to_grid(self) -> MapGrid:
         """ Chuyển tất cả vật thể trong map thành grid tọa độ, và các
             điểm trên grid tọa độ và trả về MapGrid object chứa tất cả vật thể, tile
         """
         map_grid = MapGrid(self.width // self.grid_size,
-                           self.height // self.grid_size, self.grid_size)
+                           self.height // self.grid_size,
+                           self.grid_size,
+                           self.randomizer)
 
         for cell in self.cells:
+            map_grid.rooms.append(cell.to_room_on_grid())
             cell.to_grid(map_grid)
 
         return map_grid

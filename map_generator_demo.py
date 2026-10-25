@@ -36,17 +36,17 @@ def execute_step(map, step):
             map.add_corridors()
             text = font.render('Thêm đường đi nối giữa các phòng', False, 'white')
         case 5:
-            map.add_spawn_point()
-            text = font.render('Thêm spawn point vào 1 phòng ngẫu nhiên', False, 'white')
-        case 6:
-            map.add_enemies()
-            text = font.render('Thêm kẻ địch', False, 'white')
-        case 7:
             map.align()
             text = font.render('Căn tọa độ các phòng cho trùng với grid tọa độ', False, 'white')
-        case 8:
+        case 6:
             map = map.to_grid()
             text = font.render('Biến toàn bộ map thành một mảng chứa các phần tử: cell phòng, cell rỗng, cell đường đi', False, 'white')
+        case 7:
+            map.add_spawn_point()
+            text = font.render('Thêm spawn point vào 1 phòng ngẫu nhiên', False, 'white')
+        case 8:
+            map.add_enemies()
+            text = font.render('Thêm kẻ địch', False, 'white')
         case 9:
             map.fill_wall()
             text = font.render('Thêm tường bao quanh phòng và hành lang', False, 'white')
@@ -62,6 +62,16 @@ def draw_grid(grid_size):
 
     for y in range(grid_size, screen_height, grid_size):
         pygame.draw.rect(screen, (25, 25, 25), (0, y, screen_width, 1))
+
+def get_mouse_grid_coordinate():
+    mouse_pos = pygame.mouse.get_pos()
+    return (mouse_pos[0] // grid_size, mouse_pos[1] // grid_size)
+
+def draw_mouse_grid_coordinate(surface):
+    pos = get_mouse_grid_coordinate()
+    coordinate_text = font.render(str(pos), False, 'black', 'white')
+    surface.blit(coordinate_text, (( pos[0] * grid_size,
+                                    (pos[1] - 1) * grid_size)))
 
 map = None
 map, text = execute_step(map, step)
@@ -86,6 +96,7 @@ while running:
     draw_grid(grid_size)
 
     screen.blit(text, dest=(5, 5))
+    draw_mouse_grid_coordinate(screen)
 
     pygame.display.flip()
 
