@@ -33,6 +33,7 @@ class Renderer:
            Tiles.CORRIDOR:     self.atlases["tiles"].get("stone floor 2"),
            Characters.BANDIT:  self.atlases["rogues"].get("bandit"),
            Enemies.SMALL_SLIME:self.atlases["monsters"].get("small slime"),
+           Enemies.SKELETON:   self.atlases["monsters"].get("skeleton"),
         }
 
     def render(self, tile: Enum, tile_coordinate: GridCoordinate) -> None:

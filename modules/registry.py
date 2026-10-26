@@ -15,3 +15,4 @@ class Characters(Enum):
 
 class Enemies(Enum):
     SMALL_SLIME = auto()
+    SKELETON = auto()

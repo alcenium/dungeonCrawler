@@ -1,6 +1,8 @@
 import pygame
 from typing import TYPE_CHECKING
+
 from modules.grid_coordinate import GridCoordinate
+from modules.entities.enemy  import Enemy
 
 if TYPE_CHECKING:
     from modules.registry import Characters
@@ -40,8 +42,16 @@ class Player:
         if world.is_walkable(neighbor_tile):
             self.coordinate += relative_coordinate
             return True
+        else:
+            entity = world.get_entity(neighbor_tile)
+            match entity:
+                case Enemy():
+                    entity.reduce_hp()
+                    if entity.hp <= 0:
+                        world.enemies.remove(entity)
+                    return True
         return False
 
-    def reduce_hp(self, ammount):
+    def reduce_hp(self, ammount: int = 1):
         self.hp -= ammount
         print(f'{self.hp}')

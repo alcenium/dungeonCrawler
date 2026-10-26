@@ -3,17 +3,18 @@ from typing import TYPE_CHECKING
 
 from modules.grid_coordinate import GridCoordinate
 from modules.entities.player import Player
+from modules.entities.enemy import Enemy
 from modules.registry import Tiles
 
 if TYPE_CHECKING:
     from modules.registry import Enemies
 
-class SmallSlime:
+class SmallSlime(Enemy):
     def __init__(self, coordinate: GridCoordinate, _type: Enemies):
-        self.coordinate = coordinate
-        self._type      = _type
-        self.turn = 1
+        super().__init__(coordinate, _type)
+        self.hp     = 2
         self.moving = True
+        self.neighbor = None
 
         random.seed()
         match random.randint(1, 4):
@@ -27,21 +28,20 @@ class SmallSlime:
                 self.direction = ( 0,-1)
 
     def update(self, world):
+        neighbor_pos = self.coordinate + self.direction
+        self.neighbor = world.get_tile(neighbor_pos)
+
+        if type(self.neighbor) == Tiles and not self.neighbor.walkable:
+            self.direction = (self.direction[0] * -1,
+                              self.direction[1] * -1)
+
         self.moving = not self.moving
         if self.moving:
             self.move(world)
 
     def move(self, world):
-        neighbor_pos = self.coordinate + self.direction
-        neighbor = world.get_tile(neighbor_pos)
-
-        match neighbor:
+        match self.neighbor:
             case Tiles():
-                if neighbor.walkable:
-                    self.coordinate += self.direction
-                else:
-                    self.direction = (self.direction[0] * -1,
-                                      self.direction[1] * -1)
-                    self.coordinate += self.direction
+                self.coordinate += self.direction
             case Player():
-                neighbor.reduce_hp(1)
+                self.neighbor.reduce_hp(1)

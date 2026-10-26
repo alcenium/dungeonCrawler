@@ -1,9 +1,11 @@
 from math import floor
 
 from modules.entities.player      import Player
-from modules.entities.small_slime import SmallSlime
 from modules.grid_coordinate      import GridCoordinate
 from modules.registry import Characters, Tiles, Enemies
+
+from modules.entities.small_slime import SmallSlime
+from modules.entities.skeleton import Skeleton
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -20,16 +22,33 @@ class World:
 
     def add_enemies(self):
         for enemy in self.map_grid.enemies:
-            if enemy.type == Enemies.SMALL_SLIME:
-                tile_coordinate = GridCoordinate(enemy.x, enemy.y)
-                self.enemies.append(SmallSlime(tile_coordinate, Enemies.SMALL_SLIME))
+            tile_coordinate = GridCoordinate(enemy.x, enemy.y)
+            match enemy.type:
+                case Enemies.SMALL_SLIME:
+                    enemy = SmallSlime(tile_coordinate, Enemies.SMALL_SLIME)
+                case Enemies.SKELETON:
+                    enemy = Skeleton(tile_coordinate, Enemies.SKELETON)
+            self.enemies.append(enemy)
 
     def get_tile(self, tile_coordinate: GridCoordinate) -> Tiles:
         if tile_coordinate == self.player.coordinate:
             return self.player
         return self.map_grid.get(tile_coordinate.x, tile_coordinate.y)
 
-    def is_walkable(self, tile_coordinate):
+    def get_entity(self, tile_coordinate: GridCoordinate) -> Entity | None:
+        for enemy in self.enemies:
+            if enemy.coordinate == tile_coordinate:
+                return enemy
+        return None
+
+    def is_walkable(self, tile_coordinate: GridCoordinate | tuple[int, int]) -> bool:
+        for enemy in self.enemies:
+            if enemy.coordinate == tile_coordinate:
+                return False
+
+        if tile_coordinate == self.player.coordinate:
+            return False
+
         return self.get_tile(tile_coordinate).walkable
 
     def update(self) -> None:

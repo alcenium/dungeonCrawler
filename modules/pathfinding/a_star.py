@@ -26,12 +26,13 @@ class AStar:
 
             if self.current == self.end:
                 current_path_tile = self.current
-                path = []
+                self.path = []
                 while current_path_tile != self.start:
                     self.processed.remove(current_path_tile)
                     self.path.append(current_path_tile)
                     current_path_tile = current_path_tile.connection
-                break
+                self.path.append(current_path_tile)
+                return self.path_to_coordinate()
 
             for neighbor in self.current.neighbors:
                 if neighbor.walkable == False or neighbor in self.processed:
@@ -49,3 +50,10 @@ class AStar:
                         self.searching.append(neighbor)
             if self.debug:
                 break
+
+    def path_to_coordinate(self):
+        coordinate_list = []
+        for node in self.path:
+            coordinate_list.append((node.x, node.y))
+        coordinate_list.reverse()
+        return coordinate_list

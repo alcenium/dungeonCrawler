@@ -15,13 +15,17 @@ class Demo:
         self.screen_width = self.node_map.width * self.grid_size
         self.screen_height = self.node_map.height * self.grid_size
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+
         self.clock  = pygame.time.Clock()
         self.fps    = 60
+
+        self.font = pygame.font.Font('assets/CousineNerdFont-Regular.ttf', 15)
 
         self.start_node = None
         self.end_node = None
         self.map_updated = False
         self.pathfinder = None
+        self.path = None
 
         self.running = True
 
@@ -75,7 +79,8 @@ class Demo:
         if self.map_updated and self.start_node and self.end_node:
             self.node_map.reset()
             self.pathfinder = AStar(self.start_node, self.end_node)
-            self.pathfinder.pathfind()
+            self.path = self.pathfinder.pathfind()
+            print(self.path)
             self.map_updated = False
 
     def display(self):
@@ -90,6 +95,7 @@ class Demo:
             self.draw_node(self.screen, 'red', self.end_node)
 
         self.draw_grid()
+        self.draw_mouse_grid_coordinate(self.screen)
         pygame.display.flip()
 
     def draw_grid(self):
@@ -98,6 +104,12 @@ class Demo:
 
         for y in range(0, self.screen_height, self.grid_size):
             pygame.draw.line(self.screen, 'black', (0, y), (self.screen_width, y))
+
+    def draw_mouse_grid_coordinate(self, surface):
+        pos = self.get_mouse_grid_coordinate()
+        coordinate_text = self.font.render(str(pos), False, 'black', 'white')
+        surface.blit(coordinate_text, (( pos[0] * self.grid_size,
+                                        (pos[1] - 1) * self.grid_size)))
 
     def get_mouse_grid_coordinate(self):
         mouse_pos = pygame.mouse.get_pos()

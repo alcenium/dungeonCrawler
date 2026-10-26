@@ -3,6 +3,9 @@ from modules.registry import Tiles, Enemies
 from modules.binary_space_partitioning.spawn_point import SpawnPoint
 from modules.binary_space_partitioning.enemy import Enemy
 
+from modules.entities.small_slime import SmallSlime
+from modules.entities.skeleton import Skeleton
+
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from random import Random
@@ -75,7 +78,7 @@ class MapGrid:
         """ Chọn các phòng không có điểm hồi sinh để đặt kẻ địch """
         for room in self.rooms:
             point = self.get_random_walkable_coordinate(room[0], room[1], room[2], room[3])
-            enemy_type = Enemies.SMALL_SLIME
+            enemy_type = self.randomizer.choice((Enemies.SMALL_SLIME, Enemies.SKELETON))
             self.enemies.append(Enemy(point[0], point[1], enemy_type))
 
     def get_random_walkable_coordinate(self, x1: int, y1: int, x2: int, y2: int) -> tuple:
