@@ -3,9 +3,6 @@ from modules.registry import Tiles, Enemies
 from modules.binary_space_partitioning.spawn_point import SpawnPoint
 from modules.binary_space_partitioning.enemy import Enemy
 
-from modules.entities.small_slime import SmallSlime
-from modules.entities.skeleton import Skeleton
-
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from random import Random
@@ -22,7 +19,7 @@ class MapGrid:
         self.rooms: list[tuple] = []
 
         self.spawn_point: Any = None
-        self.enemies: list[Enemies] = []
+        self.enemies: list[Enemy] = []
 
     def set(self, x, y, value) -> bool:
         if self.is_out_of_range(x,y):
@@ -75,7 +72,6 @@ class MapGrid:
         self.spawn_point = SpawnPoint(point[0], point[1])
 
     def add_enemies(self) -> None:
-        """ Chọn các phòng không có điểm hồi sinh để đặt kẻ địch """
         for room in self.rooms:
             point = self.get_random_walkable_coordinate(room[0], room[1], room[2], room[3])
             enemy_type = self.randomizer.choice((Enemies.SMALL_SLIME, Enemies.SKELETON))
@@ -98,26 +94,30 @@ class MapGrid:
             if enemy == (x, y):
                 return False
 
-        return True
+        return self.get(x, y).walkable
             
-    def display(self, surface):
+    def display(self, surface, draw_other: bool=True):
         for x in range(self.width):
             for y in range(self.height):
-                if self.get(x, y) == Tiles.FLOOR:
-                    pygame.draw.rect(surface, 'white',
-                                     (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+                match self.get(x, y):
+                    case Tiles.EMPTY:
+                        pygame.draw.rect(surface, 'gray',
+                                         (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+                    case Tiles.FLOOR:
+                        pygame.draw.rect(surface, 'white',
+                                         (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+                    case Tiles.CORRIDOR:
+                        pygame.draw.rect(surface, (112, 128, 144),
+                                         (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+                    case Tiles.WALL_TOP:
+                        pygame.draw.rect(surface, (165, 42, 42),
+                                         (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+                    case Tiles.WALL_SIDE:
+                        pygame.draw.rect(surface, (90, 0, 0),
+                                         (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
 
-                if self.get(x, y) == Tiles.CORRIDOR:
-                    pygame.draw.rect(surface, (112, 128, 144),
-                                     (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
-
-                if self.get(x, y) == Tiles.WALL_TOP:
-                    pygame.draw.rect(surface, (165, 42, 42),
-                                     (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
-
-                if self.get(x, y) == Tiles.WALL_SIDE:
-                    pygame.draw.rect(surface, (90, 0, 0),
-                                     (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+        if not draw_other:
+            return
 
         for enemy in self.enemies:
             pygame.draw.rect(surface, (255, 0, 0),

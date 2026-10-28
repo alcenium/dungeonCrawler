@@ -1,36 +1,56 @@
 from modules.pathfinding.node import Node
+from modules.pathfinding.node import NodeMap
+from modules.binary_space_partitioning.map_grid import MapGrid
 
 class AStar:
-    def __init__(self, start: Node, end: Node, debug=False):
-        self.start = start
-        self.end   = end
+    def __init__(self, map: MapGrid):
+        self.node_map = NodeMap(map)
+        self.start = None
+        self.end   = None
+
+        self.searching = []
+        self.processed = []
+        self.path = []
+        self.current = None
+
+    def reset_path(self, start, end):
+        self.start = self.node_map.get(start)
+        self.end   = self.node_map.get(end)
         self.start.distance_to_end = self.start.distance_to(self.end)
 
         self.searching = [self.start]
-        self.processed = []
-        self.path = []
         self.current = self.searching[0]
 
-        self.debug = debug
+        self.processed = []
+        self.path = []
 
-    def pathfind(self):
+    def update_map(self, new_map):
+        self.node_map = NodeMap(new_map)
+
+    def pathfind(self, start, end) -> list[tuple]:
+        self.reset_path(start, end)
+
         while self.searching and not self.path:
             self.current = self.searching[0]
+
             for node in self.searching:
                 if (node.total_distance <  self.current.total_distance or
                     node.total_distance == self.current.total_distance and
                     node.distance_to_end < self.current.distance_to_end):
                     self.current = node
+
             self.processed.append(self.current)
             self.searching.remove(self.current)
 
             if self.current == self.end:
                 current_path_tile = self.current
                 self.path = []
+
                 while current_path_tile != self.start:
                     self.processed.remove(current_path_tile)
                     self.path.append(current_path_tile)
                     current_path_tile = current_path_tile.connection
+
                 self.path.append(current_path_tile)
                 return self.path_to_coordinate()
 
@@ -48,8 +68,6 @@ class AStar:
                     if not already_searching:
                         neighbor.distance_to_end = neighbor.distance_to(self.end)
                         self.searching.append(neighbor)
-            if self.debug:
-                break
 
     def path_to_coordinate(self):
         coordinate_list = []

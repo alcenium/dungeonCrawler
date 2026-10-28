@@ -3,6 +3,16 @@ class GridCoordinate:
         self.x = x
         self.y = y
 
+    @staticmethod
+    def to_grid_coordinate(input):
+        match input:
+            case GridCoordinate():
+                return input
+            case (x, y):
+                return GridCoordinate(x, y)
+            case _:
+                raise ValueError(f'Unsupported type of {type(input)}')
+
     def __add__(self, other) -> GridCoordinate:
         match other:
             case GridCoordinate():

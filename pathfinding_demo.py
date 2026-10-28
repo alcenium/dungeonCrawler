@@ -4,16 +4,20 @@ from modules.binary_space_partitioning import MapGenerator
 from modules.pathfinding.node import Node, NodeMap
 from modules.pathfinding.a_star import AStar
 
+from modules.registry import Tiles
+
 class Demo:
     def __init__(self):
         pygame.init()
         self.grid_size = 16
         self.grid_dimension = (self.grid_size, self.grid_size)
-        self.generator = MapGenerator()
-        self.node_map = NodeMap(self.generator.generate_map())
 
-        self.screen_width = self.node_map.width * self.grid_size
-        self.screen_height = self.node_map.height * self.grid_size
+        self.generator = MapGenerator()
+        self.map       = self.generator.generate_map()
+        self.pathfinder = AStar(self.map)
+
+        self.screen_width = self.map.width * self.grid_size
+        self.screen_height = self.map.height * self.grid_size
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
 
         self.clock  = pygame.time.Clock()
@@ -24,7 +28,6 @@ class Demo:
         self.start_node = None
         self.end_node = None
         self.map_updated = False
-        self.pathfinder = None
         self.path = None
 
         self.running = True
@@ -45,47 +48,54 @@ class Demo:
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         self.running = False
+                case pygame.MOUSEBUTTONDOWN:
+                    if event.button == 6:
+                        pos = self.get_mouse_grid_coordinate()
+                        node = self.pathfinder.node_map.get(*pos)
+                        if node.walkable and node != self.start_node and node != self.end_node:
+                            self.start_node = node
+                            self.map_updated = True
+                        elif node == self.start_node:
+                            self.start_node = None
+                            self.map_updated = True
+
+                    if event.button == 7:
+                        pos = self.get_mouse_grid_coordinate()
+                        node = self.pathfinder.node_map.get(*pos)
+                        if node.walkable and node != self.start_node and node != self.end_node:
+                            self.end_node = node
+                            self.map_updated = True
+                        elif node == self.end_node:
+                            self.end_node = None
+                            self.map_updated = True
 
     def process_key(self):
         pressed = pygame.mouse.get_pressed(5)
         pos = self.get_mouse_grid_coordinate()
 
         if pressed[0]:
-            if self.node_map.get(*pos).walkable:
-                self.node_map.get(*pos).walkable = False
+            if self.map.get(*pos).walkable:
+                self.map.set(*pos, Tiles.WALL_TOP)
                 self.map_updated = True
         if pressed[2]:
-            if not self.node_map.get(*pos).walkable:
-                self.node_map.get(*pos).walkable = True
+            if not self.map.get(*pos).walkable:
+                self.map.set(*pos, Tiles.FLOOR)
                 self.map_updated = True
-        if pressed[3]:
-            node = self.node_map.get(*pos)
-            if node.walkable and node != self.start_node and node != self.end_node:
-                self.start_node = self.node_map.get(*pos)
-                self.map_updated = True
-                if self.start_node.walkable == False:
-                    self.start_node = None
-                    self.map_updated = False
-        if pressed[4]:
-            node = self.node_map.get(*pos)
-            if node.walkable and node != self.start_node and node != self.end_node:
-                self.end_node = self.node_map.get(*pos)
-                self.map_updated = True
-                if self.end_node.walkable == False:
-                    self.end_node = None
-                    self.map_updated = False
 
     def update(self):
         if self.map_updated and self.start_node and self.end_node:
-            self.node_map.reset()
-            self.pathfinder = AStar(self.start_node, self.end_node)
-            self.path = self.pathfinder.pathfind()
-            print(self.path)
+            self.pathfinder.update_map(self.map)
+            self.path = self.pathfinder.pathfind(self.start_node, self.end_node)
+            print(self.path, end='\n\n')
             self.map_updated = False
+        if not self.start_node or not self.end_node:
+            self.pathfinder.searching = []
+            self.pathfinder.processed = []
+            self.pathfinder.path = []
 
     def display(self):
         self.screen.fill('white')
-        self.node_map.display(self.screen)
+        self.map.display(self.screen, draw_other=False)
         if self.pathfinder:
             self.render_pathfinder(self.screen)
 

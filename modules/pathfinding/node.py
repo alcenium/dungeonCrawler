@@ -1,9 +1,10 @@
 import pygame
 from modules.registry import Tiles
+from modules.grid_coordinate import GridCoordinate
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from modules.binary_space_partitioning.map_grid import Map_Grid
+    from modules.binary_space_partitioning.map_grid import MapGrid
 
 class Node:
     def __init__(self, x: int, y: int, walkable: bool) -> None:
@@ -38,8 +39,8 @@ class Node:
             if neighbor is not None:
                 self.neighbors.append(neighbor)
 
-    def __str__(self):
-        return f'(x:{self.x}, y:{self.y})'
+    def __repr__(self):
+        return f'(x:{self.x}, y:{self.y}, {self.walkable})'
 
     def __eq__(self, other):
         if other is None:
@@ -76,16 +77,28 @@ class NodeMap:
         for node in self.node_map:
             node.distance_to_start = 0
             node.distance_to_end = 0
-    def get(self, x: int, y: int) -> Node | None:
+            node.connection = None
+
+    def get(self, *args) -> Node | None:
+        match args[0]:
+            case int():
+                x = args[0]
+                y = args[1]
+            case (pos1, pos2):
+                x = pos1
+                y = pos2
+            case GridCoordinate():
+                x = args[0].x
+                y = args[0].y
+            case Node():
+                x = args[0].x
+                y = args[0].y
+            case _:
+                raise ValueError(f"Cannot handle type {type(args[0])}")
+
         if self.is_out_of_range(x, y):
             return None
         return self.node_map[y * self.width + x]
-
-    def set(self, x: int, y: int, value: Node):
-        if self.is_out_of_range(x, y):
-            return False
-        self.node_map[y * self.width + x]
-        return True
 
     def is_out_of_range(self, x, y):
         return (x >= self.width or y >= self.height or x < 0 or y < 0)
