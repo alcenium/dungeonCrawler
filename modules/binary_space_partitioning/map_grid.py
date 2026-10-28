@@ -101,7 +101,7 @@ class MapGrid:
             for y in range(self.height):
                 match self.get(x, y):
                     case Tiles.EMPTY:
-                        pygame.draw.rect(surface, 'gray',
+                        pygame.draw.rect(surface, (25, 25, 25),
                                          (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
                     case Tiles.FLOOR:
                         pygame.draw.rect(surface, 'white',
