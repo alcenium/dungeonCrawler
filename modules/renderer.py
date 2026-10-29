@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from enum   import Enum
     from pygame import Surface
     from modules.world           import World
-    from modules.grid_coordinate import GridCoordinate
+    from modules.coordinate import Coordinate
 
 class Renderer:
     def __init__(self, virtual_width: int, virtual_height: int, grid_size: int) -> None:
@@ -36,7 +36,7 @@ class Renderer:
            Enemies.SKELETON:   self.atlases["monsters"].get("skeleton"),
         }
 
-    def render(self, tile: Enum, tile_coordinate: GridCoordinate) -> None:
+    def render(self, tile: Enum, tile_coordinate: Coordinate) -> None:
         """
         Biến tọa độ thế giới sang tọa độ trên màn hình
         Hiển thị mặt phẳng lên màn hình

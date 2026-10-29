@@ -1,10 +1,11 @@
 import pygame
+from modules.coordinate import Coordinate
 from modules.registry import Tiles, Enemies
-from modules.binary_space_partitioning.spawn_point import SpawnPoint
 from modules.binary_space_partitioning.enemy import Enemy
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
+    from modules.coordinate import CoordinateLike
     from random import Random
     from typing import Any
 
@@ -15,28 +16,31 @@ class MapGrid:
         self.grid_size = grid_size
         self.randomizer = randomizer
 
-        self.grid: list[Tiles] = [Tiles.EMPTY] * (width*height)
+        self.map_grid: list[Tiles] = [Tiles.EMPTY] * (width*height)
         self.rooms: list[tuple] = []
 
         self.spawn_point: Any = None
         self.enemies: list[Enemy] = []
 
-    def set(self, x, y, value) -> bool:
-        if self.is_out_of_range(x,y):
+    def set(self, position: CoordinateLike, value) -> bool:
+        coordinate = Coordinate.to_coordinate(position)
+        if self.is_out_of_range(coordinate):
             return False
-        self.grid[y * self.width + x] = value
+        self.map_grid[coordinate.y * self.width + coordinate.x] = value
         return True
 
-    def get(self, x, y):
-        if self.is_out_of_range(x,y):
+    def get(self, position: CoordinateLike):
+        coordinate = Coordinate.to_coordinate(position)
+        if self.is_out_of_range(coordinate):
             return None
-        return self.grid[y * self.width + x]
+        return self.map_grid[coordinate.y * self.width + coordinate.x]
 
-    def is_out_of_range(self, x, y):
-        return (x < 0 or
-                y < 0 or
-                x >= self.width or
-                y >= self.height)
+    def is_out_of_range(self, position: CoordinateLike):
+        coordinate = Coordinate.to_coordinate(position)
+        return (coordinate.x < 0 or
+                coordinate.y < 0 or
+                coordinate.x >= self.width or
+                coordinate.y >= self.height)
 
     def fill_wall(self):
         neighbors = ((-1, -1), (0, -1), (1, -1),
@@ -45,31 +49,34 @@ class MapGrid:
 
         for x in range(0, self.width):
             for y in range(0, self.height):
-                cell_self = self.get(x, y)
+                cell_self = self.get((x, y))
+
                 for neighbor_relative_pos in neighbors:
-                    neighbor = self.get(x + neighbor_relative_pos[0],
-                                        y + neighbor_relative_pos[1])
+                    neighbor = self.get((x + neighbor_relative_pos[0],
+                                         y + neighbor_relative_pos[1]))
+
                     if cell_self != Tiles.EMPTY:
                         continue
+
                     if neighbor != None and neighbor != Tiles.EMPTY and neighbor != Tiles.WALL_TOP:
-                        self.set(x, y, Tiles.WALL_TOP)
+                        self.set((x, y), Tiles.WALL_TOP)
 
     def add_wall_depth(self):
         for x in range(0, self.width):
             for y in range(0, self.height):
-                cell_south = self.get(x, y + 1)
-                cell_self  = self.get(x, y)
+                cell_south = self.get((x, y + 1))
+                cell_self  = self.get((x, y))
 
                 if cell_self != Tiles.WALL_TOP:
                     continue
                 if cell_south != Tiles.WALL_TOP:
-                    self.set(x, y, Tiles.WALL_SIDE)
+                    self.set((x, y), Tiles.WALL_SIDE)
 
     def add_spawn_point(self) -> None:
         """ Chọn một phòng ngẫu nhiên và dặt điểm sinh ra người chơi ở đó """
         room = self.randomizer.choice(self.rooms)
         point = self.get_random_walkable_coordinate(room[0], room[1], room[2], room[3])
-        self.spawn_point = SpawnPoint(point[0], point[1])
+        self.spawn_point = Coordinate(point[0], point[1])
 
     def add_enemies(self) -> None:
         for room in self.rooms:
@@ -82,24 +89,25 @@ class MapGrid:
         while True:
             x = self.randomizer.randint(x1, x2)
             y = self.randomizer.randint(y1, y2)
-            if self.tile_walkable(x, y):
+            if self.is_walkable((x, y)):
                 break
         return (x, y)
 
-    def tile_walkable(self, x, y):
-        if self.spawn_point and self.spawn_point == (x, y):
+    def is_walkable(self, position: CoordinateLike):
+        coordinate = Coordinate.to_coordinate(position)
+        if self.spawn_point and self.spawn_point == coordinate:
             return False
 
         for enemy in self.enemies:
-            if enemy == (x, y):
+            if enemy == (coordinate.x, coordinate.y):
                 return False
 
-        return self.get(x, y).walkable
+        return self.get(coordinate).walkable
             
     def display(self, surface, draw_other: bool=True):
         for x in range(self.width):
             for y in range(self.height):
-                match self.get(x, y):
+                match self.get((x, y)):
                     case Tiles.EMPTY:
                         pygame.draw.rect(surface, (25, 25, 25),
                                          (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))

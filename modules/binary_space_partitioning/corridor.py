@@ -30,4 +30,4 @@ class Corridor:
 
         for x in range(x_start, x_end):
             for y in range(y_start, y_end):
-                map_grid.set(x, y, Tiles.CORRIDOR)
+                map_grid.set((x, y), Tiles.CORRIDOR)

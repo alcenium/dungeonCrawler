@@ -4,10 +4,6 @@ from modules.binary_space_partitioning.cell import Cell
 from modules.binary_space_partitioning.corridor import Corridor
 from modules.binary_space_partitioning.map_grid import MapGrid
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from modules.binary_space_partitioning.spawn_point import SpawnPoint
-
 class Map:
     """ Map được định nghĩa bởi số phòng cần tạo, kích thước nhỏ nhất của 1 cell,
         và root cell là cell bao quát tất cả
@@ -23,7 +19,7 @@ class Map:
         self.randomizer        = randomizer
         self.room_count        = room_count
         self.grid_size         = grid_size
-        self.min_cell_dim      = min_size
+        self.min_cell_dim      = min_size * grid_size
 
         self.root : Cell       = Cell(grid_size, grid_size, width-grid_size, height-grid_size, randomizer, grid_size)
         self.cells: list[Cell] = []

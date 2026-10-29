@@ -5,7 +5,7 @@ from modules.atlas import Atlas
 from modules.renderer import Renderer
 
 from modules.world import World
-from modules.world import GridCoordinate
+from modules.coordinate import Coordinate
 
 from modules.binary_space_partitioning import MapGenerator
 

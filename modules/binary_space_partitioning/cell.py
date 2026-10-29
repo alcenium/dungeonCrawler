@@ -2,9 +2,7 @@ import pygame
 from random import Random
 from pygame import Surface
 
-from modules.registry import Tiles, Enemies
-from modules.binary_space_partitioning.spawn_point import SpawnPoint
-from modules.binary_space_partitioning.enemy import Enemy
+from modules.registry import Tiles
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -39,9 +37,6 @@ class Cell:
 
         self.horizontal_corridors: list[Corridor] = []
         self.vertical_corridors  : list[Corridor] = []
-
-        self.spawn_point: SpawnPoint | None = None
-        self.enemies: list[Enemy] = []
 
     def get_leaves(self, cells: list[Cell]) -> None:
         """ Thêm tất cả các cell nhỏ nhất (phòng) vào trong danh sách được chỉ định """
@@ -110,12 +105,6 @@ class Cell:
         for corridor in self.vertical_corridors:
             corridor.align(self.grid_size)
 
-        for enemy in self.enemies:
-            enemy.align(self.grid_size)
-
-        if self.spawn_point:
-            self.spawn_point.align(self.grid_size)
-
     def reduce_corridor(self) -> None:
         """ Giảm số lượng hành lang, cần sửa lại """
         if self.horizontal_corridors and self.vertical_corridors:
@@ -124,17 +113,6 @@ class Cell:
                     self.vertical_corridors.pop(0)
                 case 2:
                     self.horizontal_corridors.pop(0)
-
-    def add_spawn_point(self) -> None:
-        """ Đặt spawn point vào 1 điểm ngẫu nhiên trong phòng """
-        spawn_point_x = self.randomizer.randint(self.x1, self.x2 - self.grid_size)
-        spawn_point_y = self.randomizer.randint(self.y1, self.y2 - self.grid_size)
-        self.spawn_point = SpawnPoint(spawn_point_x, spawn_point_y)
-
-    def add_enemy(self) -> None:
-        x = self.randomizer.randint(self.x1, self.x2 - self.grid_size)
-        y = self.randomizer.randint(self.y1, self.y2 - self.grid_size)
-        self.enemies.append(Enemy(x, y, Enemies.SMALL_SLIME))
 
     def to_grid(self, map_grid: MapGrid):
         """ Chuyển tất cả vật thể trong phòng thành grid tọa độ, và các
@@ -147,18 +125,12 @@ class Cell:
 
         for x in range(x_start, x_end):
             for y in range(y_start, y_end):
-                map_grid.set(x, y, Tiles.FLOOR)
+                map_grid.set((x, y), Tiles.FLOOR)
 
         for corridor in self.horizontal_corridors:
             corridor.to_grid(map_grid, self.grid_size)
         for corridor in self.vertical_corridors:
             corridor.to_grid(map_grid, self.grid_size)
-
-        for enemy in self.enemies:
-            map_grid.enemies.append(enemy.to_grid(self.grid_size))
-
-        if self.spawn_point:
-            map_grid.spawn_point = self.spawn_point.to_grid(self.grid_size)
 
     def to_room_on_grid(self):
         return (int(self.x1 // self.grid_size),
@@ -191,18 +163,6 @@ class Cell:
                 corridor.display(surface)
             for corridor in self.vertical_corridors:
                 corridor.display(surface)
-
-            for enemy in self.enemies:
-                pygame.draw.rect(surface, 'red', (enemy.x,
-                                                  enemy.y,
-                                                  self.grid_size,
-                                                  self.grid_size))
-
-            if self.spawn_point:
-                pygame.draw.rect(surface, 'green', (self.spawn_point.x,
-                                                    self.spawn_point.y,
-                                                    self.grid_size,
-                                                    self.grid_size))
 
     def __str__(self):
         return f'[(x1:{self.x1}, y1:{self.y1}), (x2:{self.x2}, y2:{self.y2})]'

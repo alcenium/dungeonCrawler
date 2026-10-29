@@ -25,7 +25,7 @@ class AStar:
         self.path = []
 
     def update_map(self, new_map):
-        self.node_map = NodeMap(new_map)
+        self.node_map.update(new_map)
 
     def pathfind(self, start, end) -> list[tuple]:
         self.reset_path(start, end)
@@ -51,7 +51,6 @@ class AStar:
                     self.path.append(current_path_tile)
                     current_path_tile = current_path_tile.connection
 
-                self.path.append(current_path_tile)
                 return self.path_to_coordinate()
 
             for neighbor in self.current.neighbors:

@@ -1,14 +1,14 @@
-from modules.world import GridCoordinate
+from modules.coordinate import Coordinate
 
 class Camera:
     def __init__(self, screen_width: int, screen_height: int, tile_size: int) -> None:
-        self.focus     = GridCoordinate(0, 0)
+        self.focus     = Coordinate(0, 0)
         self.tile_size = tile_size
 
         self.screen_width  = screen_width
         self.screen_height = screen_height
 
-    def grid_to_screen(self, grid_coordinate: GridCoordinate) -> tuple[int, int]:
+    def grid_to_screen(self, grid_coordinate: Coordinate) -> tuple[int, int]:
         """ Chuyển đổi từ tọa độ grid sang tọa độ trên màn hình """
         focus_center_x: int = self.tile_size // 2
         focus_center_y: int = self.tile_size // 2
@@ -19,7 +19,7 @@ class Camera:
         return (self.screen_width //2 + dx * self.tile_size - focus_center_x,
                 self.screen_height//2 + dy * self.tile_size - focus_center_y)
 
-    def object_visible(self, object: GridCoordinate) -> bool:
+    def object_visible(self, object: Coordinate) -> bool:
         """ Vật thể có trên màn hình hay không """
         x_coordinate: int = (object.x - self.focus.x) * self.tile_size
         y_coordinate: int = (object.y - self.focus.y) * self.tile_size
@@ -30,7 +30,7 @@ class Camera:
     def focus_on(self, _object) -> None:
         """ Chọn tọa độ trung tâm của màn hình """
         match _object:
-            case GridCoordinate():
+            case Coordinate():
                 self.focus = _object
             case tuple():
-                self.focus = GridCoordinate(_object[0], _object[1])
+                self.focus = Coordinate(_object[0], _object[1])

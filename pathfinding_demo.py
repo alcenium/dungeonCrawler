@@ -25,8 +25,8 @@ class Demo:
 
         self.font = pygame.font.Font('assets/CousineNerdFont-Regular.ttf', 15)
 
-        self.start_node = None
-        self.end_node = None
+        self.start = None
+        self.end = None
         self.map_updated = False
         self.path = None
 
@@ -51,22 +51,20 @@ class Demo:
                 case pygame.MOUSEBUTTONDOWN:
                     if event.button == 6:
                         pos = self.get_mouse_grid_coordinate()
-                        node = self.pathfinder.node_map.get(*pos)
-                        if node.walkable and node != self.start_node and node != self.end_node:
-                            self.start_node = node
+                        if self.map.is_walkable(pos) and pos != self.start and pos != self.end:
+                            self.start = pos
                             self.map_updated = True
-                        elif node == self.start_node:
-                            self.start_node = None
+                        elif pos == self.start:
+                            self.start = None
                             self.map_updated = True
 
                     if event.button == 7:
                         pos = self.get_mouse_grid_coordinate()
-                        node = self.pathfinder.node_map.get(*pos)
-                        if node.walkable and node != self.start_node and node != self.end_node:
-                            self.end_node = node
+                        if self.map.is_walkable(pos) and pos != self.start and pos != self.end:
+                            self.end = pos
                             self.map_updated = True
-                        elif node == self.end_node:
-                            self.end_node = None
+                        elif pos == self.end:
+                            self.end = None
                             self.map_updated = True
 
     def process_key(self):
@@ -83,26 +81,26 @@ class Demo:
                 self.map_updated = True
 
     def update(self):
-        if self.map_updated and self.start_node and self.end_node:
+        if self.map_updated and self.start and self.end:
             self.pathfinder.update_map(self.map)
-            self.path = self.pathfinder.pathfind(self.start_node, self.end_node)
+            self.path = self.pathfinder.pathfind(self.start, self.end)
             print(self.path, end='\n\n')
             self.map_updated = False
-        if not self.start_node or not self.end_node:
+        if not self.start or not self.end:
             self.pathfinder.searching = []
             self.pathfinder.processed = []
             self.pathfinder.path = []
 
     def display(self):
         self.screen.fill('white')
-        self.map.display(self.screen, draw_other=False)
+        self.map.display(self.screen, draw_other=True)
         if self.pathfinder:
             self.render_pathfinder(self.screen)
 
-        if self.start_node:
-            self.draw_node(self.screen, 'green', self.start_node)
-        if self.end_node:
-            self.draw_node(self.screen, 'red', self.end_node)
+        if self.start:
+            pygame.draw.rect(self.screen, 'green', ((self.start[0] * self.grid_size, self.start[1] * self.grid_size), self.grid_dimension))
+        if self.end:
+            pygame.draw.rect(self.screen, 'red', ((self.end[0] * self.grid_size, self.end[1] * self.grid_size), self.grid_dimension))
 
         self.draw_grid()
         self.draw_mouse_grid_coordinate(self.screen)
@@ -117,7 +115,8 @@ class Demo:
 
     def draw_mouse_grid_coordinate(self, surface):
         pos = self.get_mouse_grid_coordinate()
-        coordinate_text = self.font.render(str(pos), False, 'black', 'white')
+        coordinate_text = self.font.render(f'{str(pos)}, {self.map.is_walkable(pos)}', False, 'black', 'white')
+
         surface.blit(coordinate_text, (( pos[0] * self.grid_size,
                                         (pos[1] - 1) * self.grid_size)))
 

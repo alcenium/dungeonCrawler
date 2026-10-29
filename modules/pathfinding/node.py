@@ -1,6 +1,6 @@
 import pygame
 from modules.registry import Tiles
-from modules.grid_coordinate import GridCoordinate
+from modules.coordinate import Coordinate
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -61,13 +61,14 @@ class NodeMap:
         self.cache_neighbor()
 
     def process_map(self, map: MapGrid):
-        x, y = 0, 0
-        for tile in map.grid:
-            self.node_map.append(Node(x, y, tile.walkable))
-            x += 1
-            if x >= self.width:
-                x %= self.width
-                y += 1
+        for y in range(0, map.height):
+            for x in range(0, map.width):
+                self.node_map.append(Node(x, y, map.is_walkable((x, y)) ))
+
+    def update(self, updated_map):
+        for y in range(0, updated_map.height):
+            for x in range(0, updated_map.width):
+                self.node_map[y * self.width + x].walkable = updated_map.is_walkable((x, y))
 
     def cache_neighbor(self):
         for node in self.node_map:
@@ -80,22 +81,7 @@ class NodeMap:
             node.connection = None
 
     def get(self, *args) -> Node | None:
-        match args[0]:
-            case int():
-                x = args[0]
-                y = args[1]
-            case (pos1, pos2):
-                x = pos1
-                y = pos2
-            case GridCoordinate():
-                x = args[0].x
-                y = args[0].y
-            case Node():
-                x = args[0].x
-                y = args[0].y
-            case _:
-                raise ValueError(f"Cannot handle type {type(args[0])}")
-
+        x, y = Coordinate.to_tuple(*args)
         if self.is_out_of_range(x, y):
             return None
         return self.node_map[y * self.width + x]
