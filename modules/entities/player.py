@@ -1,15 +1,15 @@
 import pygame
 from typing import TYPE_CHECKING
 
-from modules.grid_coordinate import GridCoordinate
+from modules.coordinate import Coordinate
 from modules.entities.enemy  import Enemy
 
 if TYPE_CHECKING:
     from modules.registry import Characters
 
 class Player:
-    def __init__(self, tile_coord: GridCoordinate, _type: Characters) -> None:
-        self.coordinate = tile_coord
+    def __init__(self, coordinate: Coordinate, _type: Characters) -> None:
+        self.coordinate = coordinate
         self._type      = _type
         self.hp         = 4
 
@@ -37,7 +37,7 @@ class Player:
             case _:
                 return False
 
-        neighbor_tile  : GridCoordinate = self.coordinate + relative_coordinate
+        neighbor_tile  : Coordinate = self.coordinate + relative_coordinate
 
         if world.is_walkable(neighbor_tile):
             self.coordinate += relative_coordinate
