@@ -37,7 +37,7 @@ class Demo:
 
         self.shift_x = 0
         self.shift_y = 0
-        self.shift_speed = 256
+        self.shift_speed = 512
 
         self.slow_mode = True
         self.timer = 0
@@ -220,7 +220,7 @@ class Demo:
                                                    node_y + 0.3 * self.grid_size - 0.5 * distance_from_start.size[1]))
                 surface.blit(distance_to_end, (node_x + self.grid_size - distance_to_end.size[0] - padding,
                                                node_y + 0.3 * self.grid_size - 0.5 * distance_to_end.size[1]))
-                surface.blit(distance_to_end, (node_x + 0.5 * self.grid_size - 0.5 * distance_to_end.size[0],
-                                               node_y + 0.7 * self.grid_size - 0.5 * distance_to_end.size[1]))
+                surface.blit(total_distance, (node_x + 0.5 * self.grid_size - 0.5 * total_distance.size[0],
+                                               node_y + 0.7 * self.grid_size - 0.5 * total_distance.size[1]))
 Demo().run()
 pygame.quit()
