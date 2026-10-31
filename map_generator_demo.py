@@ -94,7 +94,7 @@ class Demo:
                 map.add_spawn_point()
                 text = self.render_outlined(self.font, 'Thêm spawn point vào 1 phòng ngẫu nhiên', text_color, outline_color, outline_size)
             case 8:
-                map.add_enemies()
+                map.add_enemies(13)
                 text = self.render_outlined(self.font, 'Thêm kẻ địch', text_color, outline_color, outline_size)
             case 9:
                 map.fill_wall()

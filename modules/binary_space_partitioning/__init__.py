@@ -8,8 +8,8 @@ if TYPE_CHECKING:
 class MapGenerator:
     def __init__(self, seed: Any = None,
                  grid_size : int = 16,
-                 width     : int = 70,
-                 height    : int = 50,
+                 width     : int = 40,
+                 height    : int = 40,
                  room_count: int = 10,
                  min_size  : int = 3) -> None:
         self.seed = seed
@@ -42,7 +42,7 @@ class MapGenerator:
 
         map_grid = map.to_grid()
         map_grid.add_spawn_point()
-        map_grid.add_enemies()
+        map_grid.add_enemies(13)
         map_grid.fill_wall()
         map_grid.add_wall_depth()
         return map_grid

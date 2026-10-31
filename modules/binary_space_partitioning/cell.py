@@ -82,8 +82,8 @@ class Cell:
         if self.left == None:
             w = self.x2 - self.x1
             h = self.y2 - self.y1
-            new_w = int(max(w * self.randomizer.uniform(0.25, 0.9), min_cell_dim))
-            new_h = int(max(h * self.randomizer.uniform(0.25, 0.9), min_cell_dim))
+            new_w = int(max(w * self.randomizer.uniform(0.4, 0.9), min_cell_dim))
+            new_h = int(max(h * self.randomizer.uniform(0.4, 0.9), min_cell_dim))
 
             self.x1 += int(0.5 * (w - new_w))
             self.x2 -= int(0.5 * (w - new_w))

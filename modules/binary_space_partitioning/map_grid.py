@@ -78,11 +78,16 @@ class MapGrid:
         point = self.get_random_walkable_coordinate(room[0], room[1], room[2], room[3])
         self.spawn_point = Coordinate(point[0], point[1])
 
-    def add_enemies(self) -> None:
-        for room in self.rooms:
-            point = self.get_random_walkable_coordinate(room[0], room[1], room[2], room[3])
-            enemy_type = self.randomizer.choice((Enemies.SMALL_SLIME, Enemies.SKELETON))
-            self.enemies.append(Enemy(point[0], point[1], enemy_type))
+    def add_enemies(self, ammount) -> None:
+        count = 0
+
+        while count < ammount:
+            room = self.randomizer.choice(self.rooms)
+            if self.spawn_point and not self.room_contain(room, self.spawn_point):
+                point = self.get_random_walkable_coordinate(room[0], room[1], room[2], room[3])
+                enemy_type = self.randomizer.choice((Enemies.SMALL_SLIME, Enemies.SKELETON))
+                self.enemies.append(Enemy(point[0], point[1], enemy_type))
+                count += 1
 
     def get_random_walkable_coordinate(self, x1: int, y1: int, x2: int, y2: int) -> tuple:
         x, y = 0, 0
@@ -92,6 +97,12 @@ class MapGrid:
             if self.is_walkable((x, y)):
                 break
         return (x, y)
+
+    def room_contain(self, room, entity):
+        return (entity.x >= room[0] and
+                entity.y >= room[1] and
+                entity.x <= room[2] and
+                entity.y <= room[3])
 
     def is_walkable(self, position: CoordinateLike):
         coordinate = Coordinate.to_coordinate(position)
