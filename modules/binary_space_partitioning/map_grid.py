@@ -113,37 +113,44 @@ class MapGrid:
             if enemy == (coordinate.x, coordinate.y):
                 return False
 
-        return self.get(coordinate).walkable
+        tile = self.get(coordinate)
+        return tile.walkable if tile else False
             
-    def display(self, surface, draw_other: bool=True):
+    def display(self, surface,
+                draw_other: bool = True,
+                grid_size: int = None,
+                shift: tuple[float, float] = (0, 0)):
+        if grid_size == None:
+            grid_size = self.grid_size
+
         for x in range(self.width):
             for y in range(self.height):
                 match self.get((x, y)):
                     case Tiles.EMPTY:
                         pygame.draw.rect(surface, (25, 25, 25),
-                                         (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+                                         (x*grid_size + shift[0], y*grid_size + shift[1], grid_size, grid_size))
                     case Tiles.FLOOR:
                         pygame.draw.rect(surface, 'white',
-                                         (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+                                         (x*grid_size + shift[0], y*grid_size + shift[1], grid_size, grid_size))
                     case Tiles.CORRIDOR:
                         pygame.draw.rect(surface, (112, 128, 144),
-                                         (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+                                         (x*grid_size + shift[0], y*grid_size + shift[1], grid_size, grid_size))
                     case Tiles.WALL_TOP:
                         pygame.draw.rect(surface, (165, 42, 42),
-                                         (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+                                         (x*grid_size + shift[0], y*grid_size + shift[1], grid_size, grid_size))
                     case Tiles.WALL_SIDE:
                         pygame.draw.rect(surface, (90, 0, 0),
-                                         (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size))
+                                         (x*grid_size + shift[0], y*grid_size + shift[1], grid_size, grid_size))
 
         if not draw_other:
             return
 
         for enemy in self.enemies:
             pygame.draw.rect(surface, (255, 0, 0),
-                             (enemy.x*self.grid_size, enemy.y*self.grid_size, self.grid_size, self.grid_size))
+                             (enemy.x*grid_size + shift[0], enemy.y*grid_size + shift[1], grid_size, grid_size))
 
         if self.spawn_point:
-            pygame.draw.rect(surface, 'green', (self.spawn_point.x * self.grid_size,
-                                                self.spawn_point.y * self.grid_size,
-                                                self.grid_size,
-                                                self.grid_size))
+            pygame.draw.rect(surface, 'green', (self.spawn_point.x * grid_size + shift[0],
+                                                self.spawn_point.y * grid_size + shift[1],
+                                                grid_size,
+                                                grid_size))

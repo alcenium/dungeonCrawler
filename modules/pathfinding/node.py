@@ -10,7 +10,7 @@ class Node(Coordinate):
     def __init__(self, x: int, y: int, walkable: bool) -> None:
         self.x = x
         self.y = y
-        self.distance_to_start = 0
+        self.distance_from_start = 0
         self.distance_to_end = 0
         self.walkable = walkable
 
@@ -28,7 +28,7 @@ class Node(Coordinate):
 
     @property
     def total_distance(self):
-        return self.distance_to_start + self.distance_to_end
+        return self.distance_from_start + self.distance_to_end
 
     def get_neighbors(self, cells):
         self.neighbors.clear()
@@ -79,7 +79,7 @@ class NodeMap:
 
     def reset(self):
         for node in self.node_map:
-            node.distance_to_start = 0
+            node.distance_from_start = 0
             node.distance_to_end = 0
             node.connection = None
 

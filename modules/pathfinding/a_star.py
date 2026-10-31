@@ -57,10 +57,10 @@ class AStar:
                     continue
                 
                 already_searching = neighbor in self.searching
-                cost_to_neighbor = self.current.distance_to_start + self.current.distance_to(neighbor)
+                cost_to_neighbor = self.current.distance_from_start + self.current.distance_to(neighbor)
 
-                if not already_searching or cost_to_neighbor < neighbor.distance_to_start:
-                    neighbor.distance_to_start = cost_to_neighbor
+                if not already_searching or cost_to_neighbor < neighbor.distance_from_start:
+                    neighbor.distance_from_start = cost_to_neighbor
                     neighbor.connection = self.current
 
                     if not already_searching:
