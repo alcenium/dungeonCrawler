@@ -47,8 +47,7 @@ class AStar:
                 self.path = []
 
                 while current_path_tile != self.start:
-                    self.processed.remove(current_path_tile)
-                    self.path.append(current_path_tile)
+                    self.path.append(current_path_tile - current_path_tile.connection)
                     current_path_tile = current_path_tile.connection
 
                 return self.path_to_coordinate()

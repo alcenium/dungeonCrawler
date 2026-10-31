@@ -3,6 +3,7 @@ import pygame
 from modules.binary_space_partitioning import MapGenerator
 from modules.pathfinding.node import Node, NodeMap
 from modules.pathfinding.a_star import AStar
+from modules.coordinate import Coordinate
 
 from modules.registry import Tiles
 
@@ -129,8 +130,16 @@ class Demo:
             self.draw_node(surface, (34, 200, 34), node)
         for node in self.pathfinder.processed:
             self.draw_node(surface, (0, 128, 128), node)
-        for node in self.pathfinder.path:
-            self.draw_node(surface, (255, 99, 71), node)
+
+        if not self.start or not self.end:
+            return
+
+        current = Coordinate.to_coordinate(self.start)
+        for relative in self.path:
+            current_position = (current * self.grid_size + (self.grid_size // 2)).tuple()
+            target_position = ((current + relative) * self.grid_size + (self.grid_size // 2)).tuple()
+            pygame.draw.line(surface, 'green', current_position, target_position, 4)
+            current = current + relative
 
     def draw_node(self, surface, color, node):
             pygame.draw.rect(surface, color, ((node.x * self.grid_size, node.y * self.grid_size), self.grid_dimension))

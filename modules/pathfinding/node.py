@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from modules.binary_space_partitioning.map_grid import MapGrid
 
-class Node:
+class Node(Coordinate):
     def __init__(self, x: int, y: int, walkable: bool) -> None:
         self.x = x
         self.y = y
@@ -51,6 +51,9 @@ class Node:
         if other is None:
             return True
         return (self.x != other.x or self.y != other.y)
+
+    def __sub__(self, other):
+        return Coordinate(self.x - other.x, self.y - other.y)
 
 class NodeMap:
     def __init__(self, map):

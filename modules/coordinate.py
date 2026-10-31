@@ -8,7 +8,7 @@ class Coordinate:
     @staticmethod
     def to_coordinate(input):
         match input:
-            case Coordinate():
+            case Coordinate(x=x, y=y):
                 return input
             case (x, y):
                 return Coordinate(x, y)
@@ -34,12 +34,17 @@ class Coordinate:
                 raise ValueError(f"Cannot handle type {type(inputs[0])}")
         return (x, y)
 
+    def tuple(self):
+        return (self.x, self.y)
+
     def __add__(self, other) -> Coordinate:
         match other:
             case Coordinate():
                 return Coordinate(self.x + other.x, self.y + other.y)
             case (x, y):
                 return Coordinate(self.x + x, self.y + y)
+            case int():
+                return Coordinate(self.x + other, self.y + other)
             case _:
                 raise TypeError(f"Coordinate doesn't support type {type(other)}")
 
@@ -53,6 +58,17 @@ class Coordinate:
                 self.x += x
                 self.y += y
                 return self
+            case _:
+                raise TypeError(f"Coordinate doesn't support type {type(other)}")
+
+    def __mul__(self, other):
+        match other:
+            case Coordinate():
+                return Coordinate(self.x * other.x, self.y * other.y)
+            case (x, y):
+                return Coordinate(self.x * x, self.y * y)
+            case int():
+                return Coordinate(self.x * other, self.y * other)
             case _:
                 raise TypeError(f"Coordinate doesn't support type {type(other)}")
 

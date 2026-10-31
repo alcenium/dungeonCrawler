@@ -58,7 +58,7 @@ class Renderer:
     def render_enemies(self, enemies):
         for enemy in enemies:
             self.render(enemy._type, enemy.coordinate)
-            if not enemy.moving:
+            if enemy.direction and not enemy.moving:
                 self.draw_move_intent(enemy.coordinate + enemy.direction)
 
     def render_player(self, player):
