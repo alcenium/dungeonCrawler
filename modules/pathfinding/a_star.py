@@ -23,6 +23,7 @@ class AStar:
 
         self.processed = []
         self.path = []
+        self.node_map.reset()
 
     def update_map(self, new_map):
         self.node_map.update(new_map)
@@ -30,42 +31,48 @@ class AStar:
     def pathfind(self, start, end) -> list[tuple]:
         self.reset_path(start, end)
 
+        returned = None
         while self.searching and not self.path:
-            self.current = self.searching[0]
+            returned = self.step()
+        return returned
 
-            for node in self.searching:
-                if (node.total_distance <  self.current.total_distance or
-                    node.total_distance == self.current.total_distance and
-                    node.distance_to_end < self.current.distance_to_end):
-                    self.current = node
+    def step(self):
+        self.current = self.searching[0]
 
-            self.processed.append(self.current)
-            self.searching.remove(self.current)
+        for node in self.searching:
+            if (node.total_distance <  self.current.total_distance or
+                node.total_distance == self.current.total_distance and
+                node.distance_to_end < self.current.distance_to_end):
+                self.current = node
 
-            if self.current == self.end:
-                current_path_tile = self.current
-                self.path = []
+        self.processed.append(self.current)
+        self.searching.remove(self.current)
 
-                while current_path_tile != self.start:
-                    self.path.append(current_path_tile - current_path_tile.connection)
-                    current_path_tile = current_path_tile.connection
+        if self.current == self.end:
+            current_path_tile = self.current
+            self.path = []
 
-                return self.path_to_coordinate()
+            while current_path_tile != self.start:
+                self.path.append(current_path_tile - current_path_tile.connection)
+                current_path_tile = current_path_tile.connection
 
-            for neighbor in self.current.neighbors:
-                if neighbor.walkable == False or neighbor in self.processed:
-                    continue
-                
-                already_searching = neighbor in self.searching
-                cost_to_neighbor = self.current.distance_from_start + self.current.distance_to(neighbor)
+            return self.path_to_coordinate()
 
-                if not already_searching or cost_to_neighbor < neighbor.distance_from_start:
-                    neighbor.distance_from_start = cost_to_neighbor
-                    neighbor.connection = self.current
+        for neighbor in self.current.neighbors:
+            if neighbor.walkable == False or neighbor in self.processed:
+                continue
+            
+            already_searching = neighbor in self.searching
+            cost_to_neighbor = self.current.distance_from_start + self.current.distance_to(neighbor)
 
-                    if not already_searching:
-                        neighbor.distance_to_end = neighbor.distance_to(self.end)
-                        self.searching.append(neighbor)
+            if not already_searching or cost_to_neighbor < neighbor.distance_from_start:
+                neighbor.distance_from_start = cost_to_neighbor
+                neighbor.connection = self.current
+
+                if not already_searching:
+                    neighbor.distance_to_end = neighbor.distance_to(self.end)
+                    self.searching.append(neighbor)
+        return None
 
     def path_to_coordinate(self):
         coordinate_list = []

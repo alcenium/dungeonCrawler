@@ -54,6 +54,11 @@ class Node(Coordinate):
 
     def __sub__(self, other):
         return Coordinate(self.x - other.x, self.y - other.y)
+    
+    def __lt__(self, other):
+        return (self.total_distance < other.total_distance or
+                self.total_distance == other.total_distance and
+                self.distance_to_end < other.distance_to_end)
 
 class NodeMap:
     def __init__(self, map):

@@ -39,6 +39,9 @@ class Demo:
         self.shift_y = 0
         self.shift_speed = 256
 
+        self.slow_mode = True
+        self.timer = 0
+
     def run(self):
         while self.running:
             self.dt = self.clock.tick(self.fps) / 1000
@@ -92,6 +95,9 @@ class Demo:
                                 self.end = None
                                 self.map_updated = True
 
+                        case pygame.K_c:
+                            self.slow_mode = not self.slow_mode
+
     def process_key(self):
         pressed = pygame.mouse.get_pressed(5)
         pos = self.get_mouse_grid_coordinate()
@@ -119,11 +125,26 @@ class Demo:
             self.shift_x -= self.shift_speed * self.dt
 
     def update(self):
-        if self.map_updated and self.start and self.end:
+        if not self.slow_mode and self.map_updated and self.start and self.end:
             self.pathfinder.update_map(self.map)
             self.path = self.pathfinder.pathfind(self.start, self.end)
             print(self.path, end='\n\n')
             self.map_updated = False
+
+        if self.slow_mode and self.start and self.end:
+            if self.map_updated:
+                self.path = []
+                self.timer = 0
+
+                self.pathfinder.reset_path(self.start, self.end)
+                self.map_updated = False
+            elif not self.path:
+                self.timer += self.dt
+
+                if self.timer >= 0.5:
+                    self.timer = 0
+                    self.path = self.pathfinder.step()
+
         if not self.start or not self.end:
             self.pathfinder.searching = []
             self.pathfinder.processed = []
@@ -171,7 +192,10 @@ class Demo:
         for node in self.pathfinder.processed:
             self.draw_node(surface, (0, 128, 128), node)
 
-        if not self.start or not self.end:
+        if self.pathfinder.searching and not self.path:
+            self.draw_node(surface, (255, 165, 0), min(self.pathfinder.searching))
+
+        if not self.start or not self.end or not self.path:
             return
 
         current = Coordinate.to_coordinate(self.start)
@@ -183,7 +207,7 @@ class Demo:
             current = current + relative
 
     def draw_node(self, surface, color, node):
-            padding = 10
+            padding = 5
             node_x = node.x * self.grid_size + self.shift_x
             node_y = node.y * self.grid_size + self.shift_y
             pygame.draw.rect(surface, color, ((node_x, node_y), self.grid_dimension))
