@@ -49,8 +49,8 @@ class Demo:
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         self.running = False
-                case pygame.MOUSEBUTTONDOWN:
-                    if event.button == 6:
+
+                    if event.key == pygame.K_w:
                         pos = self.get_mouse_grid_coordinate()
                         if self.map.is_walkable(pos) and pos != self.start and pos != self.end:
                             self.start = pos
@@ -59,7 +59,7 @@ class Demo:
                             self.start = None
                             self.map_updated = True
 
-                    if event.button == 7:
+                    if event.key == pygame.K_e:
                         pos = self.get_mouse_grid_coordinate()
                         if self.map.is_walkable(pos) and pos != self.start and pos != self.end:
                             self.end = pos
@@ -73,12 +73,12 @@ class Demo:
         pos = self.get_mouse_grid_coordinate()
 
         if pressed[0]:
-            if self.map.get(*pos).walkable:
-                self.map.set(*pos, Tiles.WALL_TOP)
+            if self.map.get(pos).walkable:
+                self.map.set(pos, Tiles.WALL_TOP)
                 self.map_updated = True
         if pressed[2]:
-            if not self.map.get(*pos).walkable:
-                self.map.set(*pos, Tiles.FLOOR)
+            if not self.map.get(pos).walkable:
+                self.map.set(pos, Tiles.FLOOR)
                 self.map_updated = True
 
     def update(self):
