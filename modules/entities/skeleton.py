@@ -13,24 +13,31 @@ class Skeleton(Enemy):
     def __init__(self, coordinate: Coordinate, _type: Enemies):
         super().__init__(coordinate, _type)
         self.moving = True
-        self.neighbor = None
 
+        self.hp = 2
         self.IDLE = 0
         self.CHASING = 1
         self.state = self.IDLE
 
         self.path = None
+        self.direction = None
 
     def update(self, world):
         if self.is_nearby(world.player.coordinate, 5):
             self.path = world.pathfinder.pathfind(self.coordinate, world.player.coordinate)
 
-        if self.path:
-            self.move(world, self.path.pop(0))
+        self.moving = not self.moving
+        if not self.moving:
+            if self.path:
+                self.direction = self.path.pop(0)
             return
+
+        if self.direction:
+            self.move(world, self.direction)
+            self.direction = None
     
-    def move(self, world, position):
-        coordinate = Coordinate.to_coordinate(position)
+    def move(self, world, direction):
+        coordinate = self.coordinate + direction
         entity = world.get_entity(coordinate)
         match entity:
             case None:
